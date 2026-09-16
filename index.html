@@ -3,43 +3,284 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tabs</title>
+  <title>Image Co-registration Results — Before / After Slider</title>
   <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --ink: #1a1a1a;
+      --muted: #666;
+      --accent: #4c7bf4;
+      --line: #ddd;
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       margin: 0;
-      background: #f5f5f5;
+      background: var(--bg);
+      color: var(--ink);
     }
-    .tabs {
-      display: flex;
-      gap: 4px;
-      background: #fff;
-      padding: 8px 16px 0;
-      border-bottom: 1px solid #ddd;
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      padding: 20px 24px 16px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
-    .tab {
-      padding: 10px 20px;
-      cursor: default;
-      color: #666;
-      border-bottom: 3px solid transparent;
+    header h1 { margin: 0 0 6px; font-size: 1.4rem; }
+    header p { margin: 4px 0; color: var(--muted); font-size: 0.95rem; }
+    header code { background: #eee; padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+      display: grid;
+      gap: 24px;
     }
-    .tab.active {
-      color: #000;
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card h2 { margin: 0 0 4px; font-size: 1.1rem; }
+    .card > p { margin: 4px 0 12px; color: var(--muted); font-size: 0.92rem; }
+    .badge-ok, .badge-warn {
+      display: inline-block;
+      font-size: 0.78rem;
       font-weight: 600;
-      border-bottom-color: #4c7bf4;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 8px;
+      vertical-align: middle;
     }
-    .content {
-      padding: 24px;
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-ok { background: #dcfce7; color: #166534; }
+
+    /* ---- comparison viewport ---- */
+    .compare {
+      --pos: 50%;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 5020 / 2968;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #000;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+      cursor: ew-resize;
     }
+    .compare img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+    .compare .layer-base { z-index: 1; }
+    .compare .layer-top {
+      z-index: 2;
+      /* show top image only LEFT of the divider */
+      clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+    }
+    .compare .divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: var(--pos);
+      width: 2px;
+      background: #fff;
+      box-shadow: 0 0 6px rgba(0,0,0,.6);
+      z-index: 3;
+      transform: translateX(-1px);
+      pointer-events: none;
+    }
+    .compare .handle {
+      position: absolute;
+      top: 50%;
+      left: var(--pos);
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+      pointer-events: none;
+      letter-spacing: -1px;
+    }
+    .tag {
+      position: absolute;
+      top: 10px;
+      z-index: 5;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.65);
+      color: #fff;
+      pointer-events: none;
+    }
+    .tag-left { left: 10px; }
+    .tag-right { right: 10px; }
+    .hint {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.55);
+      color: #fff;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* ---- controls ---- */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .controls input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+    .controls output {
+      min-width: 48px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .controls button {
+      border: 1px solid var(--line);
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .controls button:hover { background: #eee; }
+    footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 32px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    footer code { background: #e9e9e9; padding: 1px 5px; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <div class="tabs">
-    <div class="tab active">About</div>
-    <div class="tab">Product</div>
-    <div class="tab">Pricing</div>
-    <div class="tab">Contact</div>
-  </div>
-  <div class="content"></div>
+  <header>
+    <h1>Image Co-registration Results</h1>
+    <p><strong>Reference:</strong> <code>arcgis_sample.png</code> (bottom layer, right side) &nbsp;•&nbsp;
+       <strong>Source:</strong> <code>google_sample.png</code> &nbsp;•&nbsp;
+       <strong>Warped output:</strong> <code>output.png</code> (top layer, revealed from the left)</p>
+    <p>Drag the handle (or the slider below each view) left ↔ right. Everything left of the divider shows the top image; everything right of it still shows the reference.</p>
+  </header>
+
+  <main>
+    <!-- 1. Reference vs Source (BEFORE) -->
+    <section class="card">
+      <h2>1 — Reference vs Source (before registration) <span class="badge-warn">misaligned</span></h2>
+      <p>Bottom = ArcGIS reference, top = Google source. Slide to see the clear misalignment between the two.</p>
+      <div class="compare" id="cmp-before" style="--pos:50%">
+        <img class="layer-base" src="images/reference_1920.jpg" alt="Reference image (ArcGIS sample)" loading="eager" draggable="false">
+        <img class="layer-top" src="images/source_1920.jpg" alt="Source image (Google sample)" loading="eager" draggable="false">
+        <div class="divider"></div>
+        <div class="handle" aria-hidden="true">↔</div>
+        <span class="tag tag-left">Source (Google)</span>
+        <span class="tag tag-right">Reference (ArcGIS)</span>
+        <span class="hint">drag to compare</span>
+      </div>
+      <div class="controls">
+        <input type="range" id="rng-before" min="0" max="100" value="50" step="0.1" aria-label="Slider position for reference versus source comparison">
+        <output id="out-before" for="rng-before">50%</output>
+        <button type="button" data-reset="cmp-before">Reset 50%</button>
+      </div>
+    </section>
+
+    <!-- 2. Reference vs Warped output (AFTER) -->
+    <section class="card">
+      <h2>2 — Reference vs Warped output (after registration) <span class="badge-ok">co-registered</span></h2>
+      <p>Bottom = ArcGIS reference, top = warped output projected from the source. Slide to verify alignment — features should line up.</p>
+      <div class="compare" id="cmp-after" style="--pos:50%">
+        <img class="layer-base" src="images/reference_1920.jpg" alt="Reference image (ArcGIS sample)" loading="lazy" draggable="false">
+        <img class="layer-top" src="images/warped_1920.jpg" alt="Warped output image projected from source" loading="lazy" draggable="false">
+        <div class="divider"></div>
+        <div class="handle" aria-hidden="true">↔</div>
+        <span class="tag tag-left">Warped output</span>
+        <span class="tag tag-right">Reference (ArcGIS)</span>
+        <span class="hint">drag to compare</span>
+      </div>
+      <div class="controls">
+        <input type="range" id="rng-after" min="0" max="100" value="50" step="0.1" aria-label="Slider position for reference versus warped output comparison">
+        <output id="out-after" for="rng-after">50%</output>
+        <button type="button" data-reset="cmp-after">Reset 50%</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Viewer uses web-optimized copies (<code>images/reference_1920.jpg</code>, <code>images/source_1920.jpg</code>, <code>images/warped_1920.jpg</code>, 1920&nbsp;px wide, ~0.8&nbsp;MB each) derived from the full-resolution PNGs in <code>../images/</code> (<code>arcgis_sample.png</code>, <code>google_sample.png</code>, <code>output.png</code>, 5020×2968). Swap the <code>src</code> attributes to the <code>../images/*.png</code> files if you want full resolution.</p>
+  </footer>
+
+  <script>
+    function bindCompare(viewportId, rangeId, outId) {
+      var view = document.getElementById(viewportId);
+      var range = document.getElementById(rangeId);
+      var out = document.getElementById(outId);
+
+      function setPos(pct) {
+        pct = Math.min(100, Math.max(0, Number(pct)));
+        view.style.setProperty('--pos', pct + '%');
+        range.value = pct;
+        out.textContent = Math.round(pct) + '%';
+      }
+
+      function posFromEvent(e) {
+        var r = view.getBoundingClientRect();
+        var x = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        return ((x - r.left) / r.width) * 100;
+      }
+
+      var dragging = false;
+      view.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        view.setPointerCapture(e.pointerId);
+        setPos(posFromEvent(e));
+      });
+      view.addEventListener('pointermove', function (e) {
+        if (dragging) setPos(posFromEvent(e));
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+        view.addEventListener(ev, function () { dragging = false; });
+      });
+      view.addEventListener('dblclick', function () { setPos(50); });
+      range.addEventListener('input', function () { setPos(range.value); });
+
+      var btn = document.querySelector('button[data-reset="' + viewportId + '"]');
+      if (btn) btn.addEventListener('click', function () { setPos(50); });
+
+      setPos(range.value);
+    }
+
+    bindCompare('cmp-before', 'rng-before', 'out-before');
+    bindCompare('cmp-after', 'rng-after', 'out-after');
+  </script>
 </body>
 </html>
