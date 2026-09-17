@@ -62,7 +62,7 @@
       --pos: 50%;
       position: relative;
       width: 100%;
-      aspect-ratio: 5020 / 2968;
+      aspect-ratio: 768 / 454;
       overflow: hidden;
       border-radius: 8px;
       background: #000;
@@ -199,8 +199,8 @@
       <h2>1 — Reference vs Source (before registration) <span class="badge-warn">misaligned</span></h2>
       <p>Bottom = ArcGIS reference, top = Google source. Slide to see the clear misalignment between the two.</p>
       <div class="compare" id="cmp-before" style="--pos:50%">
-        <img class="layer-base" src="images/reference_1920.jpg" alt="Reference image (ArcGIS sample)" loading="eager" draggable="false">
-        <img class="layer-top" src="images/source_1920.jpg" alt="Source image (Google sample)" loading="eager" draggable="false">
+        <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image (ArcGIS sample)" loading="eager" draggable="false">
+        <img class="layer-top" src="images/source_1920_cropped.jpg" alt="Source image (Google sample)" loading="eager" draggable="false">
         <div class="divider"></div>
         <div class="handle" aria-hidden="true">↔</div>
         <span class="tag tag-left">Source (Google)</span>
@@ -219,8 +219,8 @@
       <h2>2 — Reference vs Warped output (after registration) <span class="badge-ok">co-registered</span></h2>
       <p>Bottom = ArcGIS reference, top = warped output projected from the source. Slide to verify alignment — features should line up.</p>
       <div class="compare" id="cmp-after" style="--pos:50%">
-        <img class="layer-base" src="images/reference_1920.jpg" alt="Reference image (ArcGIS sample)" loading="lazy" draggable="false">
-        <img class="layer-top" src="images/warped_1920.jpg" alt="Warped output image projected from source" loading="lazy" draggable="false">
+        <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image (ArcGIS sample)" loading="lazy" draggable="false">
+        <img class="layer-top" src="images/warped_1920_cropped.jpg" alt="Warped output image projected from source" loading="lazy" draggable="false">
         <div class="divider"></div>
         <div class="handle" aria-hidden="true">↔</div>
         <span class="tag tag-left">Warped output</span>
@@ -236,7 +236,7 @@
   </main>
 
   <footer>
-    <p>Viewer uses web-optimized copies (<code>images/reference_1920.jpg</code>, <code>images/source_1920.jpg</code>, <code>images/warped_1920.jpg</code>, 1920&nbsp;px wide, ~0.8&nbsp;MB each) derived from the full-resolution PNGs in <code>../images/</code> (<code>arcgis_sample.png</code>, <code>google_sample.png</code>, <code>output.png</code>, 5020×2968). Swap the <code>src</code> attributes to the <code>../images/*.png</code> files if you want full resolution.</p>
+    <p>Viewer uses centered crops (<code>images/reference_1920_cropped.jpg</code>, <code>images/source_1920_cropped.jpg</code>, <code>images/warped_1920_cropped.jpg</code>, 768×454, ~0.2&nbsp;MB each) derived from the full-resolution PNGs in <code>../images/</code> (<code>arcgis_sample.png</code>, <code>google_sample.png</code>, <code>output.png</code>, 5020×2968). Swap the <code>src</code> attributes to the <code>../images/*.png</code> files if you want full resolution.</p>
   </footer>
 
   <script>
