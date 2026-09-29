@@ -28,87 +28,73 @@
       padding: 16px;
       line-height: 1.45;
     }
-    .wrap { max-width: 1000px; margin: 0 auto; }
+    .wrap { max-width: 620px; margin: 0 auto; }
     h1 { font-size: 1.25rem; margin: 0 0 2px; color: var(--navy); }
     .lede { margin: 0 0 14px; color: var(--muted); font-size: 0.92rem; }
 
-    /* ---- flow of stages ---- */
-    .flow {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-    }
+    /* ---- vertical flow of steps ---- */
     .io {
-      flex: 0 0 auto;
       align-self: center;
-      font-size: 0.72rem;
+      font-size: 0.78rem;
       color: var(--muted);
+      background: var(--soft);
+      border: 1px dashed var(--line);
+      border-radius: 999px;
+      padding: 4px 14px;
       text-align: center;
-      width: 64px;
-      line-height: 1.25;
     }
-    .io a { color: var(--accent); }
-    .arrow {
-      flex: 0 0 22px;
+    .vflow { display: flex; flex-direction: column; }
+    .connector {
       align-self: center;
-      height: 2px;
+      width: 2px; height: 22px;
       background: var(--line);
       position: relative;
-      margin: 0 2px;
+      margin-bottom: 7px;
     }
-    .arrow::after {
+    .connector::after {
       content: "";
       position: absolute;
-      right: -1px; top: -4px;
-      border: 5px solid transparent;
-      border-left: 7px solid var(--line);
-      border-right: 0;
+      left: -5px; bottom: -7px;
+      border: 6px solid transparent;
+      border-top: 7px solid var(--line);
+      border-bottom: 0;
     }
-    .stage {
-      flex: 1 1 0;
-      min-width: 0;
-      font: inherit;
-      color: inherit;
-      text-align: center;
-      background: var(--card);
+    .step {
       border: 1.5px solid var(--line);
       border-radius: 12px;
-      padding: 10px 6px 9px;
-      cursor: pointer;
-      transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
-    }
-    .stage:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .stage[aria-selected="true"] {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-      box-shadow: 0 3px 10px rgba(76,123,244,.18);
-    }
-    .stage svg { width: 46px; height: 46px; display: block; margin: 0 auto 4px; color: var(--navy); }
-    .stage[aria-selected="true"] svg { color: var(--accent); }
-    .stage .num {
-      display: inline-block;
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: .04em;
-    }
-    .stage .name { display: block; font-weight: 650; font-size: 0.9rem; color: var(--navy); line-height: 1.2; }
-    .stage .sub { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-
-    .flow { margin-bottom: 14px; }
-
-    /* ---- detail panel ---- */
-    .detail {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 16px;
       background: var(--card);
+      transition: border-color .15s, box-shadow .15s;
     }
+    .step.open { border-color: var(--accent); box-shadow: 0 3px 12px rgba(76,123,244,.16); }
+    .stage {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) 18px;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      font: inherit; color: inherit; text-align: left;
+      background: transparent;
+      border: 0; border-radius: 11px;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    .stage:hover { background: var(--soft); }
+    .stage:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .step.open .stage { background: var(--accent-soft); border-radius: 11px 11px 0 0; }
+    .stage svg.icon { width: 46px; height: 46px; display: block; color: var(--navy); }
+    .step.open .stage svg.icon { color: var(--accent); }
+    .stage .num { display: block; font-size: 0.68rem; font-weight: 700; color: var(--muted); letter-spacing: .04em; }
+    .stage .name { display: block; font-weight: 650; font-size: 1rem; color: var(--navy); line-height: 1.2; }
+    .stage .sub { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
+    .chev { width: 18px; height: 18px; color: var(--muted); transition: transform .2s; }
+    .step.open .chev { transform: rotate(180deg); color: var(--accent); }
+
+    /* ---- detail panel (inside each step) ---- */
+    .detail { padding: 12px 16px 16px; }
     .detail[hidden] { display: none; }
     .detail h2 { margin: 0; font-size: 1.1rem; color: var(--navy); }
-    .detail .tagline { margin: 2px 0 10px; color: var(--muted); font-size: 0.9rem; }
-    .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 18px; align-items: start; }
+    .detail .tagline { margin: 0 0 10px; color: var(--muted); font-size: 0.9rem; }
+    .cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
     .cols ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
     .cols li { margin-bottom: 6px; }
     .eq { background: var(--soft); border-radius: 8px; padding: 8px 10px; margin: 8px 0; font-size: 0.9rem; overflow-x: auto; }
@@ -116,6 +102,14 @@
     .chip { font-size: 0.75rem; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
     figure { margin: 0; }
     figure img, figure iframe, figure canvas { width: 100%; display: block; border-radius: 8px; border: 1px solid var(--line); }
+    svg.matches { width: 100%; display: block; border-radius: 8px; }
+    svg.matches .tag rect { fill: rgba(0,0,0,.6); }
+    svg.matches .tag text { fill: #fff; font: 600 18px system-ui, sans-serif; text-anchor: middle; }
+    svg.matches line { stroke: #ffd23f; stroke-width: 1.6; }
+    svg.matches circle { fill: #ffd23f; stroke: #1b2c4f; stroke-width: 1; }
+    svg.matches .m { cursor: pointer; }
+    svg.matches .m:hover line { stroke-width: 3; }
+    svg.matches .m:hover circle { r: 7; }
     figcaption { font-size: 0.75rem; color: var(--muted); margin-top: 5px; }
     .term { border-bottom: 1px dotted var(--muted); cursor: help; position: relative; }
     .term:hover::after, .term:focus::after {
@@ -130,275 +124,241 @@
       z-index: 10; pointer-events: none;
       white-space: normal;
     }
-    details { margin-top: 10px; font-size: 0.85rem; }
-    summary { cursor: pointer; color: var(--accent); }
-    details img { margin-top: 8px; }
-
-    /* ---- median widget ---- */
-    .mw { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .mw .mgrid { width: 100%; }
-    .mw .mat.out { width: calc((100% - 8px) / 3); min-width: 120px; }
-    .mgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-    .mat {
-      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0 3px; padding: 4px 5px;
-      border: 1px solid var(--line); border-radius: 6px; background: var(--soft);
-      font: 0.62rem ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    }
-    .mat.noisy { border-color: var(--bad); background: #fdecec; }
-    .mat.out { border-color: var(--good); background: #e8f6ee; }
-    .mat span { text-align: right; padding: 1px 2px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; }
-    .mat span.hl { background: var(--accent); color: #fff; }
-    .mat span.pick { background: var(--good); color: #fff; }
-    .mw .op { font-size: 0.75rem; color: var(--muted); }
-    .sorted { margin-top: 10px; font: 0.72rem ui-monospace, Menlo, Consolas, monospace; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-    .sorted b { font-family: system-ui, sans-serif; font-weight: 600; color: var(--muted); margin-right: 4px; }
-    .sorted span { padding: 2px 5px; border-radius: 4px; background: var(--soft); border: 1px solid var(--line); }
-    .sorted span.bad { border-color: var(--bad); color: var(--bad); }
-    .sorted span.med { background: var(--good); border-color: var(--good); color: #fff; }
-
     /* ---- narrow (iPoster iframe) ---- */
     @media (max-width: 640px) {
       body { padding: 10px; }
       h1 { font-size: 1.05rem; }
       .lede { font-size: 0.82rem; }
-      .io { display: none; }
-      .arrow { flex-basis: 8px; margin: 0; }
-      .arrow::after { display: none; }
-      .stage { padding: 7px 3px; border-radius: 10px; }
-      .stage svg { width: 34px; height: 34px; }
-      .stage .name { font-size: 0.72rem; }
-      .stage .sub, .stage .num { display: none; }
-      .cols { grid-template-columns: 1fr; gap: 12px; }
-      .detail { padding: 12px; }
-      /* cells show only the entry being inspected; the result matrix is the picker */
-      .mgrid .mat { grid-template-columns: 1fr; font-size: 0.8rem; text-align: center; }
-      .mgrid .mat span { display: none; text-align: center; }
-      .mgrid .mat span.hl, .mgrid .mat span.pick { display: block; }
-      .mw .mat.out { width: 75%; font-size: 0.7rem; }
+      .stage { grid-template-columns: 38px minmax(0, 1fr) 16px; gap: 10px; padding: 9px 10px; }
+      .stage svg.icon { width: 38px; height: 38px; }
+      .stage .name { font-size: 0.92rem; }
+      .detail { padding: 10px 12px 14px; }
     }
   </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Coregistration pipeline</h1>
-  <p class="lede">Hover over or tap a stage to see how it works.</p>
+  <p class="lede">Scroll down through the four steps. Tap a step to open it.</p>
 
-  <div class="flow" role="tablist" aria-label="Pipeline stages">
-    <div class="io">Source +<br>reference<br>images</div>
-    <div class="arrow" aria-hidden="true"></div>
-
-    <button class="stage" role="tab" id="tab-dl" aria-controls="p-dl" data-stage="dl">
-      <!-- neural network -->
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-        <g opacity=".55">
-          <path d="M9 12 L24 8 M9 12 L24 20 M9 12 L24 32 M9 24 L24 8 M9 24 L24 20 M9 24 L24 32 M9 24 L24 40 M9 36 L24 20 M9 36 L24 32 M9 36 L24 40"/>
-          <path d="M24 8 L39 18 M24 20 L39 18 M24 32 L39 18 M24 20 L39 30 M24 32 L39 30 M24 40 L39 30"/>
-        </g>
-        <g fill="#fff">
-          <circle cx="9" cy="12" r="3.6"/><circle cx="9" cy="24" r="3.6"/><circle cx="9" cy="36" r="3.6"/>
-          <circle cx="24" cy="8" r="3.6"/><circle cx="24" cy="20" r="3.6"/><circle cx="24" cy="32" r="3.6"/><circle cx="24" cy="40" r="3.6"/>
-          <circle cx="39" cy="18" r="3.6"/><circle cx="39" cy="30" r="3.6"/>
-        </g>
-      </svg>
-      <span class="num">STEP 1</span>
-      <span class="name">Deep Learning</span>
-      <span class="sub">Keypoint matching</span>
-    </button>
-    <div class="arrow" aria-hidden="true"></div>
-
-    <button class="stage" role="tab" id="tab-h" aria-controls="p-h" data-stage="h">
-      <!-- square mapped to a perspective quadrilateral -->
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
-        <rect x="4" y="15" width="16" height="16" rx="1"/>
-        <path d="M4 23 H20 M12 15 V31" opacity=".45"/>
-        <path d="M30 11 L45 16 L43 34 L28 37 Z"/>
-        <path d="M29 24 L44 25 M37.5 13.5 L35.5 35.5" opacity=".45"/>
-        <path d="M21 23 H27" stroke-dasharray="2 2"/>
-        <path d="M25 20.5 L27.5 23 L25 25.5"/>
-        <text x="24" y="46" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-style="italic">H</text>
-      </svg>
-      <span class="num">STEP 2</span>
-      <span class="name">Homography</span>
-      <span class="sub">Local fits (Moving DLT)</span>
-    </button>
-    <div class="arrow" aria-hidden="true"></div>
-
-    <button class="stage" role="tab" id="tab-nr" aria-controls="p-nr" data-stage="nr">
-      <!-- noisy bars filtered to their median -->
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-        <path d="M6 40 V26 M11 40 V24 M16 40 V8 M21 40 V27 M26 40 V25 M31 40 V36 M36 40 V26 M41 40 V24"/>
-        <path d="M3 25.5 H45" stroke="#2fa866" stroke-width="2.2" stroke-dasharray="3 2"/>
-        <circle cx="16" cy="8" r="2.4" fill="#e0514b" stroke="none"/>
-        <circle cx="31" cy="36" r="2.4" fill="#e0514b" stroke="none"/>
-        <path d="M3 43 H45" opacity=".4"/>
-      </svg>
-      <span class="num">STEP 3</span>
-      <span class="name">Noise Refinement</span>
-      <span class="sub">Median de-ghosting</span>
-    </button>
-    <div class="arrow" aria-hidden="true"></div>
-
-    <button class="stage" role="tab" id="tab-iw" aria-controls="p-iw" data-stage="iw">
-      <!-- warped grid with a backward (inverse) arrow -->
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
-        <path d="M5 8 Q17 5 29 8 Q31 20 29 32 Q17 35 5 32 Q3 20 5 8 Z"/>
-        <path d="M17 6.5 Q19 20 17 33.5 M4.3 20 Q17 17.5 29.7 20" opacity=".5"/>
-        <path d="M44 38 H22 Q16 38 16 32" stroke-width="1.8"/>
-        <path d="M13 35 L16 31 L19 35" stroke-width="1.8"/>
-        <circle cx="44" cy="38" r="2.2" fill="currentColor" stroke="none"/>
-        <text x="40" y="31" font-size="7.5" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-style="italic">H⁻¹</text>
-      </svg>
-      <span class="num">STEP 4</span>
-      <span class="name">Inverse Warping</span>
-      <span class="sub">Resample + blend</span>
-    </button>
-    <div class="arrow" aria-hidden="true"></div>
-    <div class="io">Aligned<br>image<br><a href="index.html" target="_top">results ›</a></div>
+  <div class="vflow">
+    <div class="io">Source + reference images</div>
+    <div class="connector" aria-hidden="true"></div>
+    <div class="step" data-stage="dl">
+      <button class="stage" id="tab-dl" aria-controls="p-dl" aria-expanded="false" data-stage="dl">
+        <!-- neural network -->
+        <svg class="icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <g opacity=".55">
+            <path d="M9 12 L24 8 M9 12 L24 20 M9 12 L24 32 M9 24 L24 8 M9 24 L24 20 M9 24 L24 32 M9 24 L24 40 M9 36 L24 20 M9 36 L24 32 M9 36 L24 40"/>
+            <path d="M24 8 L39 18 M24 20 L39 18 M24 32 L39 18 M24 20 L39 30 M24 32 L39 30 M24 40 L39 30"/>
+          </g>
+          <g fill="#fff">
+            <circle cx="9" cy="12" r="3.6"/><circle cx="9" cy="24" r="3.6"/><circle cx="9" cy="36" r="3.6"/>
+            <circle cx="24" cy="8" r="3.6"/><circle cx="24" cy="20" r="3.6"/><circle cx="24" cy="32" r="3.6"/><circle cx="24" cy="40" r="3.6"/>
+            <circle cx="39" cy="18" r="3.6"/><circle cx="39" cy="30" r="3.6"/>
+          </g>
+        </svg>
+        <span>
+          <span class="num">STEP 1</span>
+          <span class="name">Deep Learning</span>
+          <span class="sub">Keypoint matching</span>
+        </span>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
+      </button>
+    <section class="detail" role="region" id="p-dl" aria-labelledby="tab-dl" hidden>
+      <p class="tagline">Finds points that show the same ground location in both images.</p>
+      <div class="cols">
+        <div>
+          <ul>
+            <li>Our own matcher, built on <span class="term" tabindex="0" data-tip="Detector-free transformer matcher; stays reliable in low-texture regions where SIFT fails.">LoFTR</span>, runs on the image pair.</li>
+            <li>It outputs a set of correspondences:</li>
+          </ul>
+          <div class="eq" data-tex="K=\{(x_i^{src},\,x_i^{ref})\}_{i=1}^{N}"></div>
+          <ul>
+            <li>No <span class="term" tabindex="0" data-tip="RANSAC keeps only matches that fit one global homography, so it rejects genuine local shifts as outliers.">RANSAC</span> filtering. Every match is passed on, and outliers are handled in step 3.</li>
+            <li>How evenly the matches are spread, and how precise they are, decides the quality of the whole alignment.</li>
+          </ul>
+        </div>
+        <figure>
+          <svg class="matches" id="matchfig" viewBox="0 0 480 768" role="img" aria-label="A few LoFTR keypoint matches linking the source crop (top) to the reference crop (bottom)">
+            <image href="images/pipeline/dl_src.jpg" x="0" y="0" width="480" height="360"/>
+            <image href="images/pipeline/dl_ref.jpg" x="0" y="408" width="480" height="360"/>
+            <g class="tag"><rect x="10" y="10" width="92" height="30" rx="15"/><text x="56" y="31">Source</text></g>
+            <g class="tag"><rect x="10" y="418" width="124" height="30" rx="15"/><text x="72" y="439">Reference</text></g>
+            <g id="mlines"></g>
+          </svg>
+          <figcaption>A 240 × 180 px window with a few houses. Our LoFTR model found 160 matches here; 6 are shown.</figcaption>
+        </figure>
+      </div>
+    </section>
+    </div>
+    <div class="connector" aria-hidden="true"></div>
+    <div class="step" data-stage="h">
+      <button class="stage" id="tab-h" aria-controls="p-h" aria-expanded="false" data-stage="h">
+        <!-- square mapped to a perspective quadrilateral -->
+        <svg class="icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="15" width="16" height="16" rx="1"/>
+          <path d="M4 23 H20 M12 15 V31" opacity=".45"/>
+          <path d="M30 11 L45 16 L43 34 L28 37 Z"/>
+          <path d="M29 24 L44 25 M37.5 13.5 L35.5 35.5" opacity=".45"/>
+          <path d="M21 23 H27" stroke-dasharray="2 2"/>
+          <path d="M25 20.5 L27.5 23 L25 25.5"/>
+          <text x="24" y="46" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-style="italic">H</text>
+        </svg>
+        <span>
+          <span class="num">STEP 2</span>
+          <span class="name">Homography</span>
+          <span class="sub">Local fits (Moving DLT)</span>
+        </span>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
+      </button>
+    <section class="detail" role="region" id="p-h" aria-labelledby="tab-h" hidden>
+      <p class="tagline">One 3×3 homography per grid cell instead of a single global one.</p>
+      <div class="cols">
+        <div>
+          <ul>
+            <li>The source image is split into a regular grid of <b>overlapping cells</b>.</li>
+            <li>Each cell fits its own <span class="term" tabindex="0" data-tip="As-Projective-As-Possible (Zaragoza et al.): DLT where each match is weighted by its distance to the cell centre.">APAP</span> homography from <i>all</i> matches, giving more weight to those near the cell centre:</li>
+          </ul>
+          <div class="eq" data-tex="w_i^{u,v}=\max\!\big(e^{-\lVert c_{u,v}-x_i^{src}\rVert^2/\sigma^2},\,\gamma\big)"></div>
+          <div class="eq" data-tex="h_{u,v}=\arg\min_{\lVert h\rVert=1}\lVert W_{u,v}A\,h\rVert^2"></div>
+          <ul>
+            <li>Solved with a weighted SVD, after <span class="term" tabindex="0" data-tip="Shift and scale the points before fitting. Without it the local matrices are badly conditioned.">Hartley normalization</span>.</li>
+          </ul>
+          <div class="chips">
+            <span class="chip">cell 100×100 px</span><span class="chip">stride 50 px</span>
+            <span class="chip">σ = 2.0</span><span class="chip">γ = 10⁻⁴</span>
+          </div>
+        </div>
+        <figure>
+          <canvas id="gridcv" width="960" height="568" aria-label="Interactive grid: hover over a cell to see its weight footprint"></canvas>
+          <figcaption>Hover over or tap a cell to see its support region (box) and the Gaussian weights of its fit (glow). Grid is coarsened here so it is visible.</figcaption>
+        </figure>
+      </div>
+    </section>
+    </div>
+    <div class="connector" aria-hidden="true"></div>
+    <div class="step" data-stage="nr">
+      <button class="stage" id="tab-nr" aria-controls="p-nr" aria-expanded="false" data-stage="nr">
+        <!-- noisy bars filtered to their median -->
+        <svg class="icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 40 V26 M11 40 V24 M16 40 V8 M21 40 V27 M26 40 V25 M31 40 V36 M36 40 V26 M41 40 V24"/>
+          <path d="M3 25.5 H45" stroke="#2fa866" stroke-width="2.2" stroke-dasharray="3 2"/>
+          <circle cx="16" cy="8" r="2.4" fill="#e0514b" stroke="none"/>
+          <circle cx="31" cy="36" r="2.4" fill="#e0514b" stroke="none"/>
+          <path d="M3 43 H45" opacity=".4"/>
+        </svg>
+        <span>
+          <span class="num">STEP 3</span>
+          <span class="name">Noise Refinement</span>
+          <span class="sub">Median de-ghosting</span>
+        </span>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
+      </button>
+    <section class="detail" role="region" id="p-nr" aria-labelledby="tab-nr" hidden>
+      <p class="tagline">Filters the field of homographies instead of the matches.</p>
+      <div class="cols">
+        <div>
+          <ul>
+            <li>Bad matches corrupt a few cells, and their homographies cause <b>ghosting</b> in the warp.</li>
+            <li>Each of the 9 entries is replaced by its <b>median</b> over a (2k+1)×(2k+1) window of neighbouring cells:</li>
+          </ul>
+          <div class="eq" data-tex="[\hat H_{u,v}]_{r,s}=\operatorname{median}_{(u',v')\in\mathcal N_{u,v}}[H_{u',v'}]_{r,s}"></div>
+          <ul>
+            <li>Outliers end up at the ends of the sorted list, so the median never picks them.</li>
+            <li>Replaces <span class="term" tabindex="0" data-tip="RANSAC keeps only matches that fit one global homography, so it rejects genuine local shifts as outliers.">RANSAC</span>: no matches are thrown away before fitting.</li>
+            <li><i>k</i> is measured in cells, not pixels.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    </div>
+    <div class="connector" aria-hidden="true"></div>
+    <div class="step" data-stage="iw">
+      <button class="stage" id="tab-iw" aria-controls="p-iw" aria-expanded="false" data-stage="iw">
+        <!-- warped grid with a backward (inverse) arrow -->
+        <svg class="icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 8 Q17 5 29 8 Q31 20 29 32 Q17 35 5 32 Q3 20 5 8 Z"/>
+          <path d="M17 6.5 Q19 20 17 33.5 M4.3 20 Q17 17.5 29.7 20" opacity=".5"/>
+          <path d="M44 38 H22 Q16 38 16 32" stroke-width="1.8"/>
+          <path d="M13 35 L16 31 L19 35" stroke-width="1.8"/>
+          <circle cx="44" cy="38" r="2.2" fill="currentColor" stroke="none"/>
+          <text x="40" y="31" font-size="7.5" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-style="italic">H⁻¹</text>
+        </svg>
+        <span>
+          <span class="num">STEP 4</span>
+          <span class="name">Inverse Warping</span>
+          <span class="sub">Resample + blend</span>
+        </span>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
+      </button>
+    <section class="detail" role="region" id="p-iw" aria-labelledby="tab-iw" hidden>
+      <p class="tagline">Each output pixel looks up where it came from in the source.</p>
+      <div class="cols">
+        <div>
+          <ul>
+            <li>For each output pixel <i>p′</i> in cell (u,v), apply the refined homography <b>in reverse</b>:</li>
+          </ul>
+          <div class="eq" data-tex="\tilde{p}=\hat H_{u,v}^{-1}\,\tilde{p}',\quad p'\in\Phi_{u,v}"></div>
+          <ul>
+            <li><span class="term" tabindex="0" data-tip="Forward mapping can leave holes. Inverse mapping gives every output pixel a value.">Inverse mapping</span> leaves no holes. The non-integer source position is sampled with <b>bilinear</b> interpolation.</li>
+            <li>Overlapping cell patches are <b>blended</b> by weighted average (Brown &amp; Lowe). The weight is 1 at a cell's centre and 0 at its edge, so no seams show.</li>
+          </ul>
+        </div>
+        <figure>
+          <iframe id="warpframe" data-src="animations/single_homography.html" title="Inverse warping with a single homography" scrolling="no" style="height:420px" loading="lazy"></iframe>
+          <figcaption>Each output pixel is sent back through H⁻¹, sampled bilinearly from its 2×2 source neighbours, and carried back. Loops over pixels 150–180 of 256.</figcaption>
+        </figure>
+      </div>
+    </section>
+    </div>
+    <div class="connector" aria-hidden="true"></div>
+    <div class="io">Aligned image</div>
   </div>
-
-  <!-- ===== 1. Deep learning ===== -->
-  <section class="detail" role="tabpanel" id="p-dl" aria-labelledby="tab-dl" hidden>
-    <h2>1 · Deep Learning: keypoint matching</h2>
-    <p class="tagline">Finds points that show the same ground location in both images.</p>
-    <div class="cols">
-      <div>
-        <ul>
-          <li>Our own matcher, built on <span class="term" tabindex="0" data-tip="Detector-free transformer matcher; stays reliable in low-texture regions where SIFT fails.">LoFTR</span>, runs on the image pair.</li>
-          <li>It outputs a set of correspondences:</li>
-        </ul>
-        <div class="eq" data-tex="K=\{(x_i^{src},\,x_i^{ref})\}_{i=1}^{N}"></div>
-        <ul>
-          <li>No <span class="term" tabindex="0" data-tip="RANSAC keeps only matches that fit one global homography, so it rejects genuine local shifts as outliers.">RANSAC</span> filtering. Every match is passed on, and outliers are handled in step 3.</li>
-          <li>How evenly the matches are spread, and how precise they are, decides the quality of the whole alignment.</li>
-        </ul>
-      </div>
-      <figure>
-        <img src="images/pipeline/loftr_matches.jpg" alt="LoFTR keypoint matches drawn as lines between source and reference images" loading="lazy">
-        <figcaption>LoFTR: 52,256 matches on a VHR pair (200 drawn).</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ===== 2. Homography ===== -->
-  <section class="detail" role="tabpanel" id="p-h" aria-labelledby="tab-h" hidden>
-    <h2>2 · Homography: local fits with Moving DLT</h2>
-    <p class="tagline">One 3×3 homography per grid cell instead of a single global one.</p>
-    <div class="cols">
-      <div>
-        <ul>
-          <li>The source image is split into a regular grid of <b>overlapping cells</b>.</li>
-          <li>Each cell fits its own <span class="term" tabindex="0" data-tip="As-Projective-As-Possible (Zaragoza et al.): DLT where each match is weighted by its distance to the cell centre.">APAP</span> homography from <i>all</i> matches, giving more weight to those near the cell centre:</li>
-        </ul>
-        <div class="eq" data-tex="w_i^{u,v}=\max\!\big(e^{-\lVert c_{u,v}-x_i^{src}\rVert^2/\sigma^2},\,\gamma\big)"></div>
-        <div class="eq" data-tex="h_{u,v}=\arg\min_{\lVert h\rVert=1}\lVert W_{u,v}A\,h\rVert^2"></div>
-        <ul>
-          <li>Solved with a weighted SVD, after <span class="term" tabindex="0" data-tip="Shift and scale the points before fitting. Without it the local matrices are badly conditioned.">Hartley normalization</span>.</li>
-        </ul>
-        <div class="chips">
-          <span class="chip">cell 100×100 px</span><span class="chip">stride 50 px</span>
-          <span class="chip">σ = 2.0</span><span class="chip">γ = 10⁻⁴</span>
-        </div>
-      </div>
-      <figure>
-        <canvas id="gridcv" width="960" height="568" aria-label="Interactive grid: hover over a cell to see its weight footprint"></canvas>
-        <figcaption>Hover over or tap a cell to see its support region (box) and the Gaussian weights of its fit (glow). Grid is coarsened here so it is visible.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ===== 3. Noise refinement ===== -->
-  <section class="detail" role="tabpanel" id="p-nr" aria-labelledby="tab-nr" hidden>
-    <h2>3 · Noise Refinement: median de-ghosting</h2>
-    <p class="tagline">Filters the field of homographies instead of the matches.</p>
-    <div class="cols">
-      <div>
-        <ul>
-          <li>Bad matches corrupt a few cells, and their homographies cause <b>ghosting</b> in the warp.</li>
-          <li>Each of the 9 entries is replaced by its <b>median</b> over a (2k+1)×(2k+1) window of neighbouring cells:</li>
-        </ul>
-        <div class="eq" data-tex="[\hat H_{u,v}]_{r,s}=\operatorname{median}_{(u',v')\in\mathcal N_{u,v}}[H_{u',v'}]_{r,s}"></div>
-        <ul>
-          <li>Outliers end up at the ends of the sorted list, so the median never picks them.</li>
-          <li><i>k</i> is measured in cells, not pixels.</li>
-        </ul>
-      </div>
-      <div>
-        <div class="mw">
-          <div class="mgrid" id="mgrid"></div>
-          <div class="op">↓ median of each entry</div>
-          <div class="mat out" id="mout"></div>
-        </div>
-        <div class="sorted" id="sorted"></div>
-        <figcaption>k = 1 window with two noisy cells (red). Hover over or tap any entry, including in the result.</figcaption>
-        <details>
-          <summary>Watch the animation</summary>
-          <img data-src="images/pipeline/median_filtering.gif" alt="Animation of median filtering over a field of homographies">
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 4. Inverse warping ===== -->
-  <section class="detail" role="tabpanel" id="p-iw" aria-labelledby="tab-iw" hidden>
-    <h2>4 · Inverse Warping and blending</h2>
-    <p class="tagline">Each output pixel looks up where it came from in the source.</p>
-    <div class="cols">
-      <div>
-        <ul>
-          <li>For each output pixel <i>p′</i> in cell (u,v), apply the refined homography <b>in reverse</b>:</li>
-        </ul>
-        <div class="eq" data-tex="\tilde{p}=\hat H_{u,v}^{-1}\,\tilde{p}',\quad p'\in\Phi_{u,v}"></div>
-        <ul>
-          <li><span class="term" tabindex="0" data-tip="Forward mapping can leave holes. Inverse mapping gives every output pixel a value.">Inverse mapping</span> leaves no holes. The non-integer source position is sampled with <b>bilinear</b> interpolation.</li>
-          <li>Overlapping cell patches are <b>blended</b> by weighted average (Brown &amp; Lowe). The weight is 1 at a cell's centre and 0 at its edge, so no seams show.</li>
-        </ul>
-        <p style="font-size:.85rem;margin:10px 0 0"><a href="index.html" target="_top">See the before / after results ›</a></p>
-      </div>
-      <figure>
-        <iframe id="warpframe" data-src="animations/multiple_homographies.html" title="Inverse warping with a grid of local homographies" scrolling="no" style="height:420px" loading="lazy"></iframe>
-        <figcaption>Pixel by pixel, each cell pulls values from the source through its own homography.</figcaption>
-      </figure>
-    </div>
-  </section>
 </div>
 
 <script>
 (function () {
-  const tabs = [...document.querySelectorAll('.stage')];
-  const hoverable = matchMedia('(hover: hover)').matches;
+  const steps = [...document.querySelectorAll('.step')];
 
-  function select(id, fromHash) {
-    tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.stage === id ? 'true' : 'false'));
-    document.querySelectorAll('.detail').forEach(p => { p.hidden = p.id !== 'p-' + id; });
-    const panel = document.getElementById('p-' + id);
-    panel.querySelectorAll('[data-src]').forEach(el => {
-      if (el.tagName === 'IFRAME' || el.closest('details') === null) { el.src = el.dataset.src; el.removeAttribute('data-src'); }
+  // one step open at a time; opening a step brings its header into view
+  function open(id, opts = {}) {
+    steps.forEach(st => {
+      const on = st.dataset.stage === id;
+      st.classList.toggle('open', on);
+      st.querySelector('.stage').setAttribute('aria-expanded', on);
+      st.querySelector('.detail').hidden = !on;
+    });
+    history.replaceState(null, '', id ? '#' + id : location.pathname + location.search);
+    if (!id) return;
+    const st = steps.find(x => x.dataset.stage === id);
+    st.querySelectorAll('[data-src]').forEach(el => {
+      el.src = el.dataset.src; el.removeAttribute('data-src');
     });
     if (id === 'h') drawGrid();
-    if (!fromHash) history.replaceState(null, '', '#' + id);
+    if (opts.scroll) {
+      const top = st.getBoundingClientRect().top;
+      // scroll only this document, never the poster around the iframe
+      if (top < 0 || top > innerHeight * 0.5) window.scrollTo({ top: scrollY + top - 8, behavior: 'smooth' });
+    }
   }
 
-  tabs.forEach(t => {
-    t.addEventListener('click', () => select(t.dataset.stage));
-    if (hoverable) {
-      let timer;
-      t.addEventListener('mouseenter', () => { timer = setTimeout(() => select(t.dataset.stage), 120); });
-      t.addEventListener('mouseleave', () => clearTimeout(timer));
-    }
-  });
-  document.querySelector('.flow').addEventListener('keydown', e => {
-    const i = tabs.indexOf(document.activeElement);
-    if (i < 0 || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-    const j = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
-    tabs[j].focus(); select(tabs[j].dataset.stage);
-  });
+  steps.forEach(st => st.querySelector('.stage').addEventListener('click', () =>
+    open(st.classList.contains('open') ? null : st.dataset.stage, { scroll: true })));
 
-  // GIF inside <details> loads only when opened
-  document.querySelectorAll('details').forEach(d => d.addEventListener('toggle', () => {
-    const img = d.querySelector('img[data-src]');
-    if (d.open && img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
-  }));
+  // step 1: sparse LoFTR matches (x, y in source crop -> x, y in reference crop, figure px)
+  const MATCHES = [[428, 264, 425.6, 248], [124, 216, 123.1, 200.1], [444, 88, 442.9, 70],
+                   [108, 88, 105.9, 73.3], [316, 104, 314.1, 87.1], [252, 232, 248.7, 217.1]];
+  const REF_Y = 408, NS = 'http://www.w3.org/2000/svg';
+  const mlines = document.getElementById('mlines');
+  MATCHES.forEach(([sx, sy, rx, ry]) => {
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'm');
+    const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); g.appendChild(e); };
+    el('line', { x1: sx, y1: sy, x2: rx, y2: ry + REF_Y });
+    el('circle', { cx: sx, cy: sy, r: 4.5 });
+    el('circle', { cx: rx, cy: ry + REF_Y, r: 4.5 });
+    mlines.appendChild(g);
+  });
 
   // fit the same-origin animation iframe to its content
   const wf = document.getElementById('warpframe');
@@ -476,54 +436,9 @@
   cv.addEventListener('pointermove', pick);
   cv.addEventListener('pointerdown', pick);
 
-  /* ---------- step 3: median widget (values from the de-ghosting figure) ---------- */
-  const M = [
-    [1.021, -0.009, 36.2, 0.011, 0.997, -10.2, 3.0e-6, -3.3e-6, 1],
-    [1.020, -0.009, 33.2, 0.012, 0.998, -12.1, 3.1e-6, -3.3e-6, 1],
-    [1.021, -0.009, 32.8, 0.011, 0.998, -14.4, 3.0e-6, -3.3e-6, 1],
-    [1.019, -0.010, 36.5, 0.011, 0.997, -10.2, 3.1e-6, -3.3e-6, 1],
-    [1.312,  0.214, 71.6, -0.187, 0.742, 18.7, 4.2e-4, -5.1e-4, 1],
-    [0.803, -0.176, -9.4, 0.251, 1.236, -48.3, -3.7e-4, 2.9e-4, 1],
-    [1.023, -0.009, 32.3, 0.012, 0.999, -10.1, 3.1e-6, -3.4e-6, 1],
-    [1.023, -0.009, 32.6, 0.012, 0.998, -11.8, 3.1e-6, -3.4e-6, 1],
-    [1.016, -0.009, 34.3, 0.012, 0.997, -10.8, 3.0e-6, -3.4e-6, 1],
-  ];
-  const NOISY = new Set([4, 5]);
-  const fmt = x => x === 1 ? '1' : x !== 0 && Math.abs(x) < 1e-3 ? x.toExponential(1) : Math.abs(x) >= 5 ? x.toFixed(1) : x.toFixed(3);
-  // cells ordered by entry k; the middle one (5th of 9) is the median
-  const order = k => M.map((m, c) => c).sort((a, b) => M[a][k] - M[b][k]);
-  const OUT = M[0].map((_, k) => M[order(k)[4]][k]);
-
-  const grid = document.getElementById('mgrid'), out = document.getElementById('mout'), sorted = document.getElementById('sorted');
-  M.forEach((m, c) => {
-    const d = document.createElement('div');
-    d.className = 'mat' + (NOISY.has(c) ? ' noisy' : '');
-    m.forEach((x, k) => { const s = document.createElement('span'); s.textContent = fmt(x); s.dataset.k = k; s.dataset.c = c; d.appendChild(s); });
-    grid.appendChild(d);
-  });
-  OUT.forEach((x, k) => { const s = document.createElement('span'); s.textContent = fmt(x); s.dataset.k = k; out.appendChild(s); });
-
-  function showEntry(k) {
-    const ord = order(k), medCell = ord[4];
-    grid.querySelectorAll('span').forEach(s => {
-      const on = +s.dataset.k === k;
-      s.classList.toggle('hl', on && +s.dataset.c !== medCell);
-      s.classList.toggle('pick', on && +s.dataset.c === medCell);
-    });
-    out.querySelectorAll('span').forEach(s => s.classList.toggle('pick', +s.dataset.k === k));
-    const r = Math.floor(k / 3) + 1, s = k % 3 + 1;
-    sorted.innerHTML = `<b>entry (${r},${s}) sorted:</b>` + ord.map((c, i) =>
-      `<span class="${i === 4 ? 'med' : NOISY.has(c) ? 'bad' : ''}">${fmt(M[c][k])}</span>`).join('');
-  }
-  [grid, out].forEach(el => {
-    el.addEventListener('pointerover', e => { if (e.target.dataset.k) showEntry(+e.target.dataset.k); });
-    el.addEventListener('click', e => { if (e.target.dataset.k) showEntry(+e.target.dataset.k); });
-  });
-  showEntry(2);
-
-  // initial stage: from #hash, otherwise step 1
+  // initial step: from #hash, otherwise step 1
   const start = location.hash.slice(1);
-  select(tabs.some(t => t.dataset.stage === start) ? start : 'dl', true);
+  open(steps.some(st => st.dataset.stage === start) ? start : 'dl');
 })();
 </script>
 </body>
