@@ -95,8 +95,8 @@
     .detail h2 { margin: 0; font-size: 1.1rem; color: var(--navy); }
     .detail .tagline { margin: 0 0 10px; color: var(--muted); font-size: 0.9rem; }
     .cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-    .cols ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
-    .cols li { margin-bottom: 6px; }
+    .cols ul, ul.plain { margin: 0 0 12px; padding-left: 18px; font-size: 0.9rem; }
+    .cols li, ul.plain li { margin-bottom: 6px; }
     .eq { background: var(--soft); border-radius: 8px; padding: 8px 10px; margin: 8px 0; font-size: 0.9rem; overflow-x: auto; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .chip { font-size: 0.75rem; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
@@ -161,24 +161,17 @@
         <span>
           <span class="num">STEP 1</span>
           <span class="name">Deep Learning</span>
-          <span class="sub">Keypoint matching</span>
+          <span class="sub">Interest points</span>
         </span>
         <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
     <section class="detail" role="region" id="p-dl" aria-labelledby="tab-dl" hidden>
-      <p class="tagline">Finds points that show the same ground location in both images.</p>
+      <p class="tagline">Interest points are detected in both images: the source and the reference.</p>
+      <ul class="plain">
+        <li>Our deep learning model, built on <span class="term" tabindex="0" data-tip="Detector-free transformer matcher; stays reliable in low-texture regions where classic detectors fail.">LoFTR</span>, finds the same ground features, such as roof corners and road edges, in each image.</li>
+        <li>Each point in the source is paired with its match in the reference.</li>
+      </ul>
       <div class="cols">
-        <div>
-          <ul>
-            <li>Our own matcher, built on <span class="term" tabindex="0" data-tip="Detector-free transformer matcher; stays reliable in low-texture regions where SIFT fails.">LoFTR</span>, runs on the image pair.</li>
-            <li>It outputs a set of correspondences:</li>
-          </ul>
-          <div class="eq" data-tex="K=\{(x_i^{src},\,x_i^{ref})\}_{i=1}^{N}"></div>
-          <ul>
-            <li>No <span class="term" tabindex="0" data-tip="RANSAC keeps only matches that fit one global homography, so it rejects genuine local shifts as outliers.">RANSAC</span> filtering. Every match is passed on, and outliers are handled in step 3.</li>
-            <li>How evenly the matches are spread, and how precise they are, decides the quality of the whole alignment.</li>
-          </ul>
-        </div>
         <figure>
           <svg class="matches" id="matchfig" viewBox="0 0 480 768" role="img" aria-label="A few LoFTR keypoint matches linking the source crop (top) to the reference crop (bottom)">
             <image href="images/pipeline/dl_src.jpg" x="0" y="0" width="480" height="360"/>
@@ -208,31 +201,21 @@
         <span>
           <span class="num">STEP 2</span>
           <span class="name">Homography</span>
-          <span class="sub">Local fits (Moving DLT)</span>
+          <span class="sub">Transformation function</span>
         </span>
         <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
     <section class="detail" role="region" id="p-h" aria-labelledby="tab-h" hidden>
-      <p class="tagline">One 3×3 homography per grid cell instead of a single global one.</p>
+      <p class="tagline">A transformation function, the <b>homography</b>, is computed from the matched points.</p>
+      <ul class="plain">
+        <li>A homography is a 3×3 matrix that maps source positions onto the reference.</li>
+        <li>The image is split into small cells, and each cell gets its own homography, for example:</li>
+      </ul>
+      <div class="eq" data-tex="H=\begin{bmatrix}1.018 & -0.0091 & 32.41\\ 0.0113 & 0.9975 & -14.06\\ 3.06\cdot10^{-6} & -3.29\cdot10^{-6} & 1\end{bmatrix}"></div>
       <div class="cols">
-        <div>
-          <ul>
-            <li>The source image is split into a regular grid of <b>overlapping cells</b>.</li>
-            <li>Each cell fits its own <span class="term" tabindex="0" data-tip="As-Projective-As-Possible (Zaragoza et al.): DLT where each match is weighted by its distance to the cell centre.">APAP</span> homography from <i>all</i> matches, giving more weight to those near the cell centre:</li>
-          </ul>
-          <div class="eq" data-tex="w_i^{u,v}=\max\!\big(e^{-\lVert c_{u,v}-x_i^{src}\rVert^2/\sigma^2},\,\gamma\big)"></div>
-          <div class="eq" data-tex="h_{u,v}=\arg\min_{\lVert h\rVert=1}\lVert W_{u,v}A\,h\rVert^2"></div>
-          <ul>
-            <li>Solved with a weighted SVD, after <span class="term" tabindex="0" data-tip="Shift and scale the points before fitting. Without it the local matrices are badly conditioned.">Hartley normalization</span>.</li>
-          </ul>
-          <div class="chips">
-            <span class="chip">cell 100×100 px</span><span class="chip">stride 50 px</span>
-            <span class="chip">σ = 2.0</span><span class="chip">γ = 10⁻⁴</span>
-          </div>
-        </div>
         <figure>
-          <canvas id="gridcv" width="960" height="568" aria-label="Interactive grid: hover over a cell to see its weight footprint"></canvas>
-          <figcaption>Hover over or tap a cell to see its support region (box) and the Gaussian weights of its fit (glow). Grid is coarsened here so it is visible.</figcaption>
+          <canvas id="gridcv" width="960" height="568" aria-label="Interactive grid: hover over a cell to highlight it"></canvas>
+          <figcaption>Hover over or tap a cell: each cell has its own homography. The grid is drawn coarser than the real one so it stays visible.</figcaption>
         </figure>
       </div>
     </section>
@@ -288,26 +271,20 @@
         <span>
           <span class="num">STEP 4</span>
           <span class="name">Inverse Warping</span>
-          <span class="sub">Resample + blend</span>
+          <span class="sub">Pixel projection</span>
         </span>
         <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
     <section class="detail" role="region" id="p-iw" aria-labelledby="tab-iw" hidden>
-      <p class="tagline">Each output pixel looks up where it came from in the source.</p>
+      <p class="tagline">Pixels are projected through the homography transformation function.</p>
+      <ul class="plain">
+        <li>Each pixel of the aligned image is traced back through its cell's homography to a position in the source image.</li>
+        <li>It takes the colour found there, so the source lands exactly on the reference.</li>
+      </ul>
       <div class="cols">
-        <div>
-          <ul>
-            <li>For each output pixel <i>p′</i> in cell (u,v), apply the refined homography <b>in reverse</b>:</li>
-          </ul>
-          <div class="eq" data-tex="\tilde{p}=\hat H_{u,v}^{-1}\,\tilde{p}',\quad p'\in\Phi_{u,v}"></div>
-          <ul>
-            <li><span class="term" tabindex="0" data-tip="Forward mapping can leave holes. Inverse mapping gives every output pixel a value.">Inverse mapping</span> leaves no holes. The non-integer source position is sampled with <b>bilinear</b> interpolation.</li>
-            <li>Overlapping cell patches are <b>blended</b> by weighted average (Brown &amp; Lowe). The weight is 1 at a cell's centre and 0 at its edge, so no seams show.</li>
-          </ul>
-        </div>
         <figure>
           <iframe id="warpframe" data-src="animations/single_homography.html" title="Inverse warping with a single homography" scrolling="no" style="height:420px" loading="lazy"></iframe>
-          <figcaption>Each output pixel is sent back through H⁻¹, sampled bilinearly from its 2×2 source neighbours, and carried back. Loops over pixels 150–180 of 256.</figcaption>
+          <figcaption>Each output pixel is traced back through the homography to the source and brings its colour back.</figcaption>
         </figure>
       </div>
     </section>
@@ -397,12 +374,7 @@
     ctx.fillStyle = 'rgba(12,20,40,.45)'; ctx.fillRect(0, 0, W, H);
 
     const cx = (active.u + 1) * STRIDE, cy = (active.v + 1) * STRIDE;
-    const sigma = STRIDE * 1.6;
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, sigma * 2.2);
-    g.addColorStop(0, 'rgba(255,214,90,.75)');
-    g.addColorStop(0.35, 'rgba(255,180,60,.4)');
-    g.addColorStop(1, 'rgba(255,160,40,0.03)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(76,123,244,.28)'; ctx.fillRect(cx - STRIDE, cy - STRIDE, STRIDE * 2, STRIDE * 2);
 
     ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1;
     for (let x = STRIDE; x < W; x += STRIDE) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
