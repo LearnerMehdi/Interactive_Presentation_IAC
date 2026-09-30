@@ -101,7 +101,7 @@
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .chip { font-size: 0.75rem; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
     figure { margin: 0; }
-    figure img, figure iframe, figure canvas { width: 100%; display: block; border-radius: 8px; border: 1px solid var(--line); }
+    figure img, figure iframe, figure canvas { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--line); }
     svg.matches { width: 100%; display: block; border-radius: 8px; }
     svg.matches .tag rect { fill: rgba(0,0,0,.6); }
     svg.matches .tag text { fill: #fff; font: 600 18px system-ui, sans-serif; text-anchor: middle; }
@@ -111,6 +111,7 @@
     svg.matches .m:hover line { stroke-width: 3; }
     svg.matches .m:hover circle { r: 7; }
     figcaption { font-size: 0.75rem; color: var(--muted); margin-top: 5px; }
+    figcaption.big { font-size: 0.9rem; }
     .term { border-bottom: 1px dotted var(--muted); cursor: help; position: relative; }
     .term:hover::after, .term:focus::after {
       content: attr(data-tip);
@@ -139,7 +140,6 @@
 <body>
 <div class="wrap">
   <h1>Coregistration pipeline</h1>
-  <p class="lede">Scroll down through the four steps. Tap a step to open it.</p>
 
   <div class="vflow">
     <div class="io">Source + reference images</div>
@@ -166,21 +166,17 @@
         <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
     <section class="detail" role="region" id="p-dl" aria-labelledby="tab-dl" hidden>
-      <p class="tagline">Interest points are detected in both images: the source and the reference.</p>
-      <ul class="plain">
-        <li>Our deep learning model, built on <span class="term" tabindex="0" data-tip="Detector-free transformer matcher; stays reliable in low-texture regions where classic detectors fail.">LoFTR</span>, finds the same ground features, such as roof corners and road edges, in each image.</li>
-        <li>Each point in the source is paired with its match in the reference.</li>
-      </ul>
+      <p>Key points from reference and source are connected</p>
       <div class="cols">
         <figure>
-          <svg class="matches" id="matchfig" viewBox="0 0 480 768" role="img" aria-label="A few LoFTR keypoint matches linking the source crop (top) to the reference crop (bottom)">
+          <svg class="matches" id="matchfig" viewBox="0 0 480 768" role="img" aria-label="A few interest-point matches linking the source crop (top) to the reference crop (bottom)">
             <image href="images/pipeline/dl_src.jpg" x="0" y="0" width="480" height="360"/>
             <image href="images/pipeline/dl_ref.jpg" x="0" y="408" width="480" height="360"/>
             <g class="tag"><rect x="10" y="10" width="92" height="30" rx="15"/><text x="56" y="31">Source</text></g>
             <g class="tag"><rect x="10" y="418" width="124" height="30" rx="15"/><text x="72" y="439">Reference</text></g>
             <g id="mlines"></g>
           </svg>
-          <figcaption>A 240 × 180 px window with a few houses. Our LoFTR model found 160 matches here; 6 are shown.</figcaption>
+          <figcaption class="big">From Google Earth</figcaption>
         </figure>
       </div>
     </section>
@@ -212,12 +208,10 @@
         <li>The image is split into small cells, and each cell gets its own homography, for example:</li>
       </ul>
       <div class="eq" data-tex="H=\begin{bmatrix}1.018 & -0.0091 & 32.41\\ 0.0113 & 0.9975 & -14.06\\ 3.06\cdot10^{-6} & -3.29\cdot10^{-6} & 1\end{bmatrix}"></div>
-      <div class="cols">
-        <figure>
-          <canvas id="gridcv" width="960" height="568" aria-label="Interactive grid: hover over a cell to highlight it"></canvas>
-          <figcaption>Hover over or tap a cell: each cell has its own homography. The grid is drawn coarser than the real one so it stays visible.</figcaption>
-        </figure>
-      </div>
+      <figure>
+        <img src="images/pipeline/local_homographies.gif" width="630" height="489" loading="lazy" alt="Grid cells fading in outward from the centre of an aerial crop, each labelled H: one local homography per cell">
+        <figcaption>One homography per cell, covering the whole image.</figcaption>
+      </figure>
     </section>
     </div>
     <div class="connector" aria-hidden="true"></div>
@@ -312,7 +306,6 @@
     st.querySelectorAll('[data-src]').forEach(el => {
       el.src = el.dataset.src; el.removeAttribute('data-src');
     });
-    if (id === 'h') drawGrid();
     if (opts.scroll) {
       const top = st.getBoundingClientRect().top;
       // scroll only this document, never the poster around the iframe
@@ -323,7 +316,7 @@
   steps.forEach(st => st.querySelector('.stage').addEventListener('click', () =>
     open(st.classList.contains('open') ? null : st.dataset.stage, { scroll: true })));
 
-  // step 1: sparse LoFTR matches (x, y in source crop -> x, y in reference crop, figure px)
+  // step 1: sparse matches (x, y in source crop -> x, y in reference crop, figure px)
   const MATCHES = [[428, 264, 425.6, 248], [124, 216, 123.1, 200.1], [444, 88, 442.9, 70],
                    [108, 88, 105.9, 73.3], [316, 104, 314.1, 87.1], [252, 232, 248.7, 217.1]];
   const REF_Y = 408, NS = 'http://www.w3.org/2000/svg';
@@ -347,7 +340,7 @@
     fitFrame();
     try { new ResizeObserver(fitFrame).observe(wf.contentDocument.body); } catch (e) {}
   });
-  addEventListener('resize', () => { fitFrame(); drawGrid(); });
+  addEventListener('resize', fitFrame);
 
   // KaTeX
   addEventListener('load', () => {
@@ -356,57 +349,6 @@
       catch (e) { el.textContent = el.dataset.tex; }
     });
   });
-
-  /* ---------- step 2: interactive grid ---------- */
-  const cv = document.getElementById('gridcv');
-  const ctx = cv.getContext('2d');
-  const img = new Image();
-  img.src = 'images/source_1920.jpg';
-  img.onload = () => drawGrid();
-  const COLS = 12, STRIDE = cv.width / COLS;      // coarsened grid; cell = 2 × stride
-  const ROWS = Math.floor(cv.height / STRIDE);
-  let active = { u: 5, v: 3 };
-
-  function drawGrid() {
-    const W = cv.width, H = cv.height;
-    ctx.clearRect(0, 0, W, H);
-    if (img.complete && img.naturalWidth) ctx.drawImage(img, 0, 0, W, H);
-    ctx.fillStyle = 'rgba(12,20,40,.45)'; ctx.fillRect(0, 0, W, H);
-
-    const cx = (active.u + 1) * STRIDE, cy = (active.v + 1) * STRIDE;
-    ctx.fillStyle = 'rgba(76,123,244,.28)'; ctx.fillRect(cx - STRIDE, cy - STRIDE, STRIDE * 2, STRIDE * 2);
-
-    ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1;
-    for (let x = STRIDE; x < W; x += STRIDE) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-    for (let y = STRIDE; y < H; y += STRIDE) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-    ctx.fillStyle = 'rgba(255,255,255,.7)';
-    for (let u = 0; u < COLS - 1; u++) for (let v = 0; v < ROWS - 1; v++) {
-      ctx.beginPath(); ctx.arc((u + 1) * STRIDE, (v + 1) * STRIDE, 2.5, 0, 7); ctx.fill();
-    }
-    const px = cv.width / (cv.clientWidth || cv.width);   // canvas units per CSS pixel
-    ctx.strokeStyle = '#4c7bf4'; ctx.lineWidth = 2.5 * px;
-    ctx.strokeRect(cx - STRIDE, cy - STRIDE, STRIDE * 2, STRIDE * 2);
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cx, cy, 3.5 * px, 0, 7); ctx.fill();
-
-    const fs = Math.round(13 * px);
-    ctx.font = `600 ${fs}px system-ui, sans-serif`;
-    const label = `cell (${active.u + 1}, ${active.v + 1})`;
-    const tw = ctx.measureText(label).width;
-    const pad = fs * 0.4, bh = fs * 1.5;
-    const lx = Math.min(Math.max(cx - tw / 2 - pad, 4), W - tw - 2 * pad - 4);
-    const ly = cy - STRIDE - bh - 6 < 4 ? cy + STRIDE + 6 : cy - STRIDE - bh - 6;
-    ctx.fillStyle = 'rgba(27,44,79,.9)'; ctx.fillRect(lx, ly, tw + 2 * pad, bh);
-    ctx.fillStyle = '#fff'; ctx.fillText(label, lx + pad, ly + fs * 1.1);
-  }
-  function pick(e) {
-    const r = cv.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width * cv.width, y = (e.clientY - r.top) / r.height * cv.height;
-    const u = Math.min(Math.max(Math.round(x / STRIDE) - 1, 0), COLS - 2);
-    const v = Math.min(Math.max(Math.round(y / STRIDE) - 1, 0), ROWS - 2);
-    if (u !== active.u || v !== active.v) { active = { u, v }; drawGrid(); }
-  }
-  cv.addEventListener('pointermove', pick);
-  cv.addEventListener('pointerdown', pick);
 
   // initial step: from #hash, otherwise step 1
   const start = location.hash.slice(1);
