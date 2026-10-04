@@ -101,6 +101,27 @@
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .chip { font-size: 0.75rem; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
     figure { margin: 0; }
+    /* clickable cells laid over the homography grid image */
+    .hpick { position: relative; }
+    .hcells { position: absolute; inset: 1px; display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(7, 1fr); border-radius: 8px; overflow: hidden; }
+    .hcells button { all: unset; cursor: pointer; }
+    .hcells button:hover { background: rgba(76,123,244,.28); }
+    .hcells button:focus-visible { box-shadow: inset 0 0 0 2px #fff; }
+    .hcells button.on { background: rgba(76,123,244,.42); box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 0 4px #fff; }
+    .hcells button.bad { background: rgba(224,81,75,.5); box-shadow: inset 0 0 0 2px var(--bad); }
+    .hcells button.fixed { background: rgba(47,168,102,.45); box-shadow: inset 0 0 0 2px var(--good); }
+    .hcells button.bad:hover, .hcells button.fixed:hover { filter: brightness(1.15); }
+    .hcells button.bad.on, .hcells button.fixed.on { box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 0 5px #fff; }
+    .hdesc { margin: 0 0 10px; }
+    .hdesc .chip b { color: var(--navy); }
+    .hdesc .chip.bad { background: #fdecea; border-color: var(--bad); color: #a3231d; }
+    .hdesc .chip.good { background: #e7f6ee; border-color: var(--good); color: #17663b; }
+    .hdesc .chip.bad b, .hdesc .chip.good b { color: inherit; }
+    .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin: 4px 0 2px; }
+    .seg button { all: unset; cursor: pointer; font-size: 0.8rem; padding: 4px 12px; color: var(--muted); }
+    .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .seg button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+    .key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 3px; }
     figure img, figure iframe, figure canvas { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--line); }
     svg.matches { width: 100%; display: block; border-radius: 8px; }
     svg.matches .tag rect { fill: rgba(0,0,0,.6); }
@@ -205,12 +226,16 @@
       <p class="tagline">A transformation function, the <b>homography</b>, is computed from the matched points.</p>
       <ul class="plain">
         <li>A homography is a 3×3 matrix that maps source positions onto the reference.</li>
-        <li>The image is split into small cells, and each cell gets its own homography, for example:</li>
+        <li>The image is split into small cells, and each cell gets its own homography. <b>Click a cell</b> to see its matrix:</li>
       </ul>
-      <div class="eq" data-tex="H=\begin{bmatrix}1.018 & -0.0091 & 32.41\\ 0.0113 & 0.9975 & -14.06\\ 3.06\cdot10^{-6} & -3.29\cdot10^{-6} & 1\end{bmatrix}"></div>
+      <div class="eq" id="heq" data-tex="H"></div>
+      <div class="chips hdesc" id="hdesc" aria-live="polite"></div>
       <figure>
-        <img src="images/pipeline/local_homographies.gif" width="630" height="489" loading="lazy" alt="Grid cells fading in outward from the centre of an aerial crop, each labelled H: one local homography per cell">
-        <figcaption>One homography per cell, covering the whole image.</figcaption>
+        <div class="hpick">
+          <img src="images/pipeline/local_homographies.png" width="630" height="489" loading="lazy" alt="Aerial crop divided into a 9 by 7 grid of cells, each labelled H: one local homography per cell">
+          <div class="hcells" id="hcells"></div>
+        </div>
+        <figcaption>One homography per cell, covering the whole image. Click any cell.</figcaption>
       </figure>
     </section>
     </div>
@@ -245,9 +270,23 @@
             <li>Outliers end up at the ends of the sorted list, so the median never picks them.</li>
             <li>Replaces <span class="term" tabindex="0" data-tip="RANSAC keeps only matches that fit one global homography, so it rejects genuine local shifts as outliers.">RANSAC</span>: no matches are thrown away before fitting.</li>
             <li><i>k</i> is measured in cells, not pixels.</li>
+            <li><b>Click a red cell</b> to see its corrupted matrix, then switch to the filtered field:</li>
           </ul>
         </div>
       </div>
+      <div class="seg" role="group" aria-label="Homography field shown">
+        <button type="button" id="nr-before" aria-pressed="true">Before filtering</button>
+        <button type="button" id="nr-after" aria-pressed="false">After median filter</button>
+      </div>
+      <div class="eq" id="nreq" data-tex="H"></div>
+      <div class="chips hdesc" id="nrdesc" aria-live="polite"></div>
+      <figure>
+        <div class="hpick">
+          <img src="images/pipeline/local_homographies.png" width="630" height="489" loading="lazy" alt="Aerial crop divided into a 9 by 7 grid of cells, each labelled H; a few cells are marked as noisy">
+          <div class="hcells" id="nrcells"></div>
+        </div>
+        <figcaption><span class="key" style="background:var(--bad)"></span>noisy homography &nbsp; <span class="key" style="background:var(--good)"></span>repaired by the median (3×3 window, <i>k</i> = 1). Click any cell.</figcaption>
+      </figure>
     </section>
     </div>
     <div class="connector" aria-hidden="true"></div>
@@ -329,6 +368,100 @@
     el('circle', { cx: rx, cy: ry + REF_Y, r: 4.5 });
     mlines.appendChild(g);
   });
+
+  // step 2: one illustrative homography per grid cell. Each matrix component
+  // varies across the field by its own margin (AMP), around the centre cell (BASE).
+  const HC = 9, HR = 7;
+  const BASE = [1.018, -0.0091, 32.41, 0.0113, 0.9975, -14.06, 3.06e-6, -3.29e-6];
+  const AMP  = [0.012, 0.015, 12, 0.015, 0.010, 9, 1.6e-6, 1.4e-6];
+  const MIX  = [[.55, -.30, 2.1, 1.3], [-.45, .40, 1.7, -2.3], [.50, -.35, 3.0, 2.0], [.40, -.50, 2.6, 1.1],
+                [.30, -.55, 1.4, 2.9], [.35, -.50, 2.0, -3.0], [.60, .25, 2.4, 1.9], [-.25, .60, 1.2, 2.7]];
+  function cellH(c, r) {
+    const u = (c - 4) / 4, v = (r - 3) / 3;
+    return BASE.map((b, k) => { const [a, d, p, q] = MIX[k];
+      return b + AMP[k] * (a * u + d * v + 0.25 * Math.sin(p * u + q * v)); });
+  }
+  const tex = el => { if (window.katex) katex.render(el.dataset.tex, el, { displayMode: true, throwOnError: false }); };
+  const fx = (x, n) => x.toFixed(n);
+  // matrix as TeX, optionally drawn in `color`
+  function matTex(name, h, color) {
+    const lin = k => fx(h[k], 4), tr = k => fx(h[k], 2), per = k => fx(h[k] * 1e6, 2) + '\\cdot10^{-6}';
+    const m = `\\begin{bmatrix}${lin(0)} & ${lin(1)} & ${tr(2)}\\\\ ${lin(3)} & ${lin(4)} & ${tr(5)}\\\\ ${per(6)} & ${per(7)} & 1\\end{bmatrix}`;
+    return name + '=' + (color ? `\\textcolor{${color}}{${m}}` : m);
+  }
+  const chip = (k, t, cls = '') => `<span class="chip ${cls}"><b>${k}</b> ${t}</span>`;
+  function describe(h) {
+    // image axes: y points down, so a positive angle turns clockwise
+    const rot = Math.atan2(h[3], h[0]) * 180 / Math.PI;
+    const scale = Math.sqrt(Math.abs(h[0] * h[4] - h[1] * h[3]));
+    return chip('Rotation', `${fx(Math.abs(rot), 2)}° ${rot >= 0 ? 'clockwise' : 'counter-clockwise'}`) +
+      chip('Scale', `×${fx(scale, 4)} (${scale >= 1 ? 'enlarged' : 'shrunk'} ${fx(Math.abs(scale - 1) * 100, 2)}%)`) +
+      chip('Shift', `${fx(Math.abs(h[2]), 1)} px ${h[2] >= 0 ? 'right' : 'left'}, ${fx(Math.abs(h[5]), 1)} px ${h[5] >= 0 ? 'down' : 'up'}`) +
+      chip('Perspective', `${fx(Math.hypot(h[6], h[7]) * 1e6, 2)}·10⁻⁶ per px`);
+  }
+  // 9×7 grid of buttons over the grid image; returns a function that marks the chosen cell
+  function buildCells(box, onPick) {
+    for (let r = 0; r < HR; r++) for (let c = 0; c < HC; c++) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('aria-label', `Homography of cell row ${r + 1}, column ${c + 1}`);
+      b.addEventListener('click', () => onPick(c, r));
+      box.appendChild(b);
+    }
+    return (c, r) => [...box.children].forEach((b, i) => {
+      const on = i === r * HC + c; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+    });
+  }
+
+  const heq = document.getElementById('heq'), hdesc = document.getElementById('hdesc');
+  function pickH(c, r) {
+    const h = cellH(c, r);
+    heq.dataset.tex = matTex(`H_{${r + 1},${c + 1}}`, h); tex(heq);
+    hdesc.innerHTML = chip('Cell', `row ${r + 1}, column ${c + 1}`) + describe(h);
+    markH(c, r);
+  }
+  const markH = buildCells(document.getElementById('hcells'), pickH);
+  pickH(4, 3);
+
+  // step 3: the same field with a few corrupted cells ("column,row" -> error added to
+  // every one of its 8 entries), and its entry-wise median over a 3×3 window (k = 1)
+  const NOISE = {
+    '1,1': [0.06, -0.09, 48, 0.11, -0.05, -37, 2.1e-5, -1.4e-5],
+    '6,0': [-0.07, 0.05, -55, 0.06, 0.08, 42, -1.6e-5, 3.1e-5],
+    '3,4': [-0.08, 0.12, 29, -0.10, 0.07, -46, 3.4e-5, 1.2e-5],
+    '7,3': [0.04, 0.07, 61, -0.09, 0.05, 33, -1.8e-5, 2.6e-5],
+    '5,6': [0.09, -0.06, -34, 0.07, -0.08, 58, 4.2e-5, -3.6e-5],
+    '0,5': [-0.05, 0.06, -44, 0.08, -0.06, -52, 2.7e-5, -2.2e-5],
+  };
+  const noisyH = (c, r) => { const n = NOISE[c + ',' + r], h = cellH(c, r); return n ? h.map((x, k) => x + n[k]) : h; };
+  function medianH(c, r) {
+    const win = [];
+    for (let v = Math.max(0, r - 1); v <= Math.min(HR - 1, r + 1); v++)
+      for (let u = Math.max(0, c - 1); u <= Math.min(HC - 1, c + 1); u++) win.push(noisyH(u, v));
+    return BASE.map((_, k) => { const a = win.map(h => h[k]).sort((x, y) => x - y), m = a.length >> 1;
+      return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; });
+  }
+  const nreq = document.getElementById('nreq'), nrdesc = document.getElementById('nrdesc'), nrcells = document.getElementById('nrcells');
+  const nrBtn = { before: document.getElementById('nr-before'), after: document.getElementById('nr-after') };
+  let nrSel = [7, 3], nrAfter = false;
+  function showNR() {
+    const [c, r] = nrSel, n = NOISE[c + ',' + r], sub = `_{${r + 1},${c + 1}}`;
+    const h = nrAfter ? medianH(c, r) : noisyH(c, r);
+    nreq.dataset.tex = matTex((nrAfter ? '\\hat H' : 'H') + sub, h, n && (nrAfter ? '#2fa866' : '#e0514b')); tex(nreq);
+    const status = !n ? chip('Clean', 'agrees with its neighbours', 'good')
+      : nrAfter ? chip('Repaired', 'median of the 3×3 neighbourhood', 'good')
+      : chip('Noisy', 'the whole matrix disagrees with its neighbours', 'bad');
+    nrdesc.innerHTML = chip('Cell', `row ${r + 1}, column ${c + 1}`) + status + describe(h);
+    [...nrcells.children].forEach((b, i) => {
+      const bad = (i % HC) + ',' + Math.floor(i / HC) in NOISE;
+      b.classList.toggle('bad', bad && !nrAfter); b.classList.toggle('fixed', bad && nrAfter);
+    });
+    nrBtn.before.setAttribute('aria-pressed', !nrAfter); nrBtn.after.setAttribute('aria-pressed', nrAfter);
+    markNR(c, r);
+  }
+  const markNR = buildCells(nrcells, (c, r) => { nrSel = [c, r]; showNR(); });
+  nrBtn.before.addEventListener('click', () => { nrAfter = false; showNR(); });
+  nrBtn.after.addEventListener('click', () => { nrAfter = true; showNR(); });
+  showNR();
 
   // fit the same-origin animation iframe to its content
   const wf = document.getElementById('warpframe');
