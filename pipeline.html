@@ -258,19 +258,13 @@
         <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
       </button>
     <section class="detail" role="region" id="p-nr" aria-labelledby="tab-nr" hidden>
-      <p class="tagline">Filters the field of homographies instead of the matches.</p>
+      <p class="tagline">A few local homography matrices come out noisy.</p>
       <div class="cols">
         <div>
           <ul>
-            <li>Bad matches corrupt a few cells, and their homographies cause <b>ghosting</b> in the warp.</li>
-            <li>Each of the 9 entries is replaced by its <b>median</b> over a (2k+1)×(2k+1) window of neighbouring cells:</li>
-          </ul>
-          <div class="eq" data-tex="[\hat H_{u,v}]_{r,s}=\operatorname{median}_{(u',v')\in\mathcal N_{u,v}}[H_{u',v'}]_{r,s}"></div>
-          <ul>
-            <li>Outliers end up at the ends of the sorted list, so the median never picks them.</li>
-            <li>Replaces <span class="term" tabindex="0" data-tip="RANSAC keeps only matches that fit one global homography, so it rejects genuine local shifts as outliers.">RANSAC</span>: no matches are thrown away before fitting.</li>
-            <li><i>k</i> is measured in cells, not pixels.</li>
-            <li><b>Click a red cell</b> to see its corrupted matrix, then switch to the filtered field:</li>
+            <li>Bad matches corrupt a few cells, and their noisy matrices cause <b>ghosting</b> in the warp.</li>
+            <li>We apply <b>median filtration</b> on top of the local homography matrices.</li>
+            <li><b>Click a red cell</b> to see its noisy matrix, then switch to the filtered field:</li>
           </ul>
         </div>
       </div>
@@ -316,7 +310,7 @@
       </ul>
       <div class="cols">
         <figure>
-          <iframe id="warpframe" data-src="animations/single_homography.html" title="Inverse warping with a single homography" scrolling="no" style="height:420px" loading="lazy"></iframe>
+          <img src="images/pipeline/inverse_warping.gif" width="1060" height="645" loading="lazy" alt="Destination pixels are traced one by one through the inverse homography to the source image and carry its colour back">
           <figcaption>Each output pixel is traced back through the homography to the source and brings its colour back.</figcaption>
         </figure>
       </div>
@@ -485,18 +479,6 @@
   nrBtn.before.addEventListener('click', () => { nrAfter = false; showNR(); });
   nrBtn.after.addEventListener('click', () => { nrAfter = true; showNR(); });
   showNR();
-
-  // fit the same-origin animation iframe to its content
-  const wf = document.getElementById('warpframe');
-  function fitFrame() {
-    try { const b = wf.contentDocument.body;
-      wf.style.height = Math.ceil(Math.max(b.scrollHeight, b.getBoundingClientRect().height)) + 4 + 'px'; } catch (e) {}
-  }
-  wf.addEventListener('load', () => {
-    fitFrame();
-    try { new ResizeObserver(fitFrame).observe(wf.contentDocument.body); } catch (e) {}
-  });
-  addEventListener('resize', fitFrame);
 
   // KaTeX
   addEventListener('load', () => {

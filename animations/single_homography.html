@@ -32,9 +32,9 @@ const Hi=[1,0,7.3, 0,1,-7.8, 0,0,1];
 // Destination window placed so that, through H^-1, it samples the house region (HX..HX+15, HY..HY+15)
 const MX=Math.ceil(HX-Hi[2]),MY=Math.ceil(HY-Hi[5]);
 const INTRO=0.6,SPLIT=200,STARTPX=150;
-// Pixel durations: quick before the cut-in at pixel 150; from there the first pixels are slow and fully narrated,
-// easing towards a steady, readable pace up to pixel 200
-const pdur=(k,valid)=>k<STARTPX-1?(valid?0.45:0.3):(valid?1.0:0.75)+1.6*Math.exp(-(k-STARTPX+1)/5);
+// Pixel durations: quick before the cut-in at pixel 150; from there every pixel is slow and fully narrated,
+// at one constant pace (no speed-up from pixel to pixel)
+const pdur=(k,valid)=>k<STARTPX-1?(valid?0.45:0.3):(valid?2.6:2.35);
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const W=1060,Hh=645,dpr=window.devicePixelRatio||1;cv.width=W*dpr;cv.height=Hh*dpr;
 const applyH=(H,x,y)=>{const X=H[0]*x+H[1]*y+H[2],Y=H[3]*x+H[4]*y+H[5],w=H[6]*x+H[7]*y+H[8];return [X/w,Y/w];};
