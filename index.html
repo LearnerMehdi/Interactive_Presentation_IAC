@@ -43,7 +43,7 @@
       border-radius: 12px;
       padding: 18px;
     }
-    .card h2 { margin: 0 0 4px; font-size: 1.1rem; }
+    .card h2 { margin: 0 0 12px; font-size: 1.1rem; }
     .card > p { margin: 4px 0 12px; color: var(--muted); font-size: 0.92rem; }
     .badge-ok, .badge-warn {
       display: inline-block;
@@ -187,17 +187,12 @@
 <body>
   <header>
     <h1>Image Co-registration Results</h1>
-    <p><strong>Reference:</strong> <code>arcgis_sample.png</code> (bottom layer, right side) &nbsp;•&nbsp;
-       <strong>Source:</strong> <code>google_sample.png</code> &nbsp;•&nbsp;
-       <strong>Warped output:</strong> <code>output.png</code> (top layer, revealed from the left)</p>
-    <p>Drag the handle (or the slider below each view) left ↔ right. Everything left of the divider shows the top image; everything right of it still shows the reference.</p>
   </header>
 
   <main>
     <!-- 1. Reference vs Source (BEFORE) -->
     <section class="card">
       <h2>1 — Reference vs Source (before registration) <span class="badge-warn">misaligned</span></h2>
-      <p>Bottom = ArcGIS reference, top = Google source. Slide to see the clear misalignment between the two.</p>
       <div class="compare" id="cmp-before" style="--pos:50%">
         <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image (ArcGIS sample)" loading="eager" draggable="false">
         <img class="layer-top" src="images/source_1920_cropped.jpg" alt="Source image (Google sample)" loading="eager" draggable="false">
@@ -217,7 +212,6 @@
     <!-- 2. Reference vs Warped output (AFTER) -->
     <section class="card">
       <h2>2 — Reference vs Warped output (after registration) <span class="badge-ok">co-registered</span></h2>
-      <p>Bottom = ArcGIS reference, top = warped output projected from the source. Slide to verify alignment — features should line up.</p>
       <div class="compare" id="cmp-after" style="--pos:50%">
         <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image (ArcGIS sample)" loading="lazy" draggable="false">
         <img class="layer-top" src="images/warped_1920_cropped.jpg" alt="Warped output image projected from source" loading="lazy" draggable="false">
