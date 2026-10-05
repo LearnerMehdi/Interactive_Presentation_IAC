@@ -413,8 +413,7 @@
     const scale = Math.sqrt(Math.abs(h[0] * h[4] - h[1] * h[3]));
     return chip('Rotation', `${fx(Math.abs(rot), 2)}° ${rot >= 0 ? 'clockwise' : 'counter-clockwise'}`) +
       chip('Scale', `×${fx(scale, 4)} (${scale >= 1 ? 'enlarged' : 'shrunk'} ${fx(Math.abs(scale - 1) * 100, 2)}%)`) +
-      chip('Shift', `${fx(Math.abs(h[2]), 1)} px ${h[2] >= 0 ? 'right' : 'left'}, ${fx(Math.abs(h[5]), 1)} px ${h[5] >= 0 ? 'down' : 'up'}`) +
-      chip('Perspective', `${fx(Math.hypot(h[6], h[7]) * 1e6, 2)}·10⁻⁶ per px`);
+      chip('Shift', `${fx(Math.abs(h[2]), 1)} px ${h[2] >= 0 ? 'right' : 'left'}, ${fx(Math.abs(h[5]), 1)} px ${h[5] >= 0 ? 'down' : 'up'}`);
   }
   // 9×7 grid of buttons over the grid image; returns a function that marks the chosen cell
   function buildCells(box, onPick) {
@@ -464,9 +463,7 @@
     const [c, r] = nrSel, n = NOISE[c + ',' + r], sub = `_{${r + 1},${c + 1}}`;
     const h = nrAfter ? medianH(c, r) : noisyH(c, r);
     nreq.dataset.tex = matTex((nrAfter ? '\\hat H' : 'H') + sub, h, n && (nrAfter ? '#2fa866' : '#e0514b')); tex(nreq);
-    const status = !n ? chip('Clean', 'agrees with its neighbours', 'good')
-      : nrAfter ? chip('Repaired', 'median of the 3×3 neighbourhood', 'good')
-      : chip('Noisy', 'the whole matrix disagrees with its neighbours', 'bad');
+    const status = n && nrAfter ? chip('Repaired', 'median of the 3×3 neighbourhood', 'good') : '';
     nrdesc.innerHTML = chip('Cell', `row ${r + 1}, column ${c + 1}`) + status + describe(h);
     [...nrcells.children].forEach((b, i) => {
       const bad = (i % HC) + ',' + Math.floor(i / HC) in NOISE;
