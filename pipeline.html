@@ -117,6 +117,10 @@
     .hdesc .chip.bad { background: #fdecea; border-color: var(--bad); color: #a3231d; }
     .hdesc .chip.good { background: #e7f6ee; border-color: var(--good); color: #17663b; }
     .hdesc .chip.bad b, .hdesc .chip.good b { color: inherit; }
+    #blcanvas { cursor: ew-resize; touch-action: pan-y; }
+    .hdesc .chip.pa { background: #e6edfe; border-color: #4c7bf4; color: #23469f; }
+    .hdesc .chip.pb { background: #fdeedd; border-color: #f08a24; color: #8a4a08; }
+    .hdesc .chip.pa b, .hdesc .chip.pb b { color: inherit; }
     .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin: 4px 0 2px; }
     .seg button { all: unset; cursor: pointer; font-size: 0.8rem; padding: 4px 12px; color: var(--muted); }
     .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -323,6 +327,35 @@
     </section>
     </div>
     <div class="connector" aria-hidden="true"></div>
+    <div class="step" data-stage="bl">
+      <button class="stage" id="tab-bl" aria-controls="p-bl" aria-expanded="false" data-stage="bl">
+        <!-- two overlapping patches fading into each other -->
+        <svg class="icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="8" width="26" height="26" rx="2"/>
+          <rect x="18" y="14" width="26" height="26" rx="2"/>
+          <rect x="18" y="14" width="12" height="20" fill="currentColor" stroke="none" opacity=".3"/>
+        </svg>
+        <span>
+          <span class="num">STEP 5</span>
+          <span class="name">Blending</span>
+          <span class="sub">Seamless merge</span>
+        </span>
+        <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
+      </button>
+    <section class="detail" role="region" id="p-bl" aria-labelledby="tab-bl" hidden>
+      <p class="tagline">Warped patches overlap. Where they do, they are <b>averaged</b>, so no seam is left.</p>
+      <div class="seg" role="group" aria-label="Blending shown">
+        <button type="button" id="bl-off" aria-pressed="false">No blending</button>
+        <button type="button" id="bl-on" aria-pressed="true">Blended</button>
+      </div>
+      <div class="chips hdesc" id="bldesc" aria-live="polite"></div>
+      <figure>
+        <canvas id="blcanvas" width="960" height="920" role="img" aria-label="Two overlapping warped patches, A and B, and the share each one contributes across the image"></canvas>
+        <figcaption>A patch counts most at its centre and fades out towards its edge. Move across the image.</figcaption>
+      </figure>
+    </section>
+    </div>
+    <div class="connector" aria-hidden="true"></div>
     <div class="io">Aligned image</div>
   </div>
 </div>
@@ -462,6 +495,80 @@
   nrBtn.before.addEventListener('click', () => { nrAfter = false; showNR(); });
   nrBtn.after.addEventListener('click', () => { nrAfter = true; showNR(); });
   showNR();
+
+  // step 5: two overlapping warped patches (A, B) that disagree by a few pixels.
+  // Each pixel is the weighted average of the patches covering it; a patch's weight
+  // falls from 1 at its centre to 0 at its edge, so the shares cross-fade over the overlap.
+  (function () {
+    const cv = document.getElementById('blcanvas'), ctx = cv.getContext('2d'), S = 2;
+    const W = 480, IH = 360, A1 = 320, B0 = 160, CUT = 240, GT = 384, GB = 452;
+    const CA = '#4c7bf4', CB = '#f08a24';
+    const off = document.createElement('canvas'); off.width = W * S; off.height = IH * S;
+    const octx = off.getContext('2d');
+    const img = new Image(); img.src = 'images/pipeline/dl_ref.jpg';
+    const desc = document.getElementById('bldesc');
+    const btn = { off: document.getElementById('bl-off'), on: document.getElementById('bl-on') };
+    let blend = true, px = 215;
+    const shareB = x => blend ? Math.min(1, Math.max(0, (x - B0) / (A1 - B0))) : +(x >= CUT);
+    const patch = (c, dx, dy) => c.drawImage(img, -8 + dx, -6 + dy, W + 16, IH + 12);
+    function tag(text, x, color) {
+      ctx.font = '600 13px system-ui, sans-serif';
+      const w = ctx.measureText(text).width + 16;
+      ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(x < W / 2 ? x : x - w, 8, w, 22, 11); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, (x < W / 2 ? x : x - w) + w / 2, 19.5);
+    }
+    function curve(f, color) {
+      const y = x => GB - f(x) * (GB - GT);
+      ctx.beginPath(); ctx.moveTo(0, GB);
+      for (let x = 0; x <= W; x++) ctx.lineTo(x, y(x));
+      ctx.lineTo(W, GB); ctx.closePath();
+      ctx.globalAlpha = .16; ctx.fillStyle = color; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.beginPath(); for (let x = 0; x <= W; x++) ctx.lineTo(x, y(x));
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.setLineDash([]); ctx.stroke();
+    }
+    function draw() {
+      ctx.setTransform(S, 0, 0, S, 0, 0); ctx.clearRect(0, 0, W, 460);
+      if (img.complete && img.naturalWidth) {
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 0, blend ? A1 : CUT, IH); ctx.clip(); patch(ctx, -2, -3); ctx.restore();
+        octx.setTransform(S, 0, 0, S, 0, 0); octx.globalCompositeOperation = 'source-over';
+        octx.clearRect(0, 0, W, IH); patch(octx, 2, 3);
+        octx.globalCompositeOperation = 'destination-in';
+        if (blend) {
+          const g = octx.createLinearGradient(B0, 0, A1, 0);
+          g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+          octx.fillStyle = g; octx.fillRect(0, 0, W, IH);
+        } else { octx.fillStyle = '#000'; octx.fillRect(CUT, 0, W - CUT, IH); }
+        ctx.drawImage(off, 0, 0, W, IH);
+      }
+      // patch outlines
+      ctx.lineWidth = 2.5; ctx.setLineDash([7, 5]);
+      ctx.strokeStyle = CA; ctx.strokeRect(1.5, 1.5, A1 - 3, IH - 3);
+      ctx.strokeStyle = CB; ctx.strokeRect(B0 + 1.5, 1.5, W - B0 - 3, IH - 3);
+      tag('Patch A', 8, CA); tag('Patch B', W - 8, CB);
+      // share of each patch along x
+      ctx.setLineDash([]); ctx.strokeStyle = '#dde2ea'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, GB + .5); ctx.lineTo(W, GB + .5); ctx.stroke();
+      curve(x => 1 - shareB(x), CA); curve(shareB, CB);
+      // probe
+      const b = shareB(px);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, IH); ctx.stroke();
+      ctx.strokeStyle = '#1b2c4f'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, GB); ctx.stroke();
+      [[1 - b, CA], [b, CB]].forEach(([w, c]) => {
+        ctx.beginPath(); ctx.arc(px, GB - w * (GB - GT), 5, 0, 7);
+        ctx.fillStyle = c; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      });
+      desc.innerHTML = chip('Patch A', Math.round((1 - b) * 100) + '%', 'pa') + chip('Patch B', Math.round(b * 100) + '%', 'pb');
+      btn.off.setAttribute('aria-pressed', !blend); btn.on.setAttribute('aria-pressed', blend);
+    }
+    const move = e => { const r = cv.getBoundingClientRect();
+      px = Math.min(W, Math.max(0, (e.clientX - r.left) / r.width * W)); draw(); };
+    cv.addEventListener('pointermove', move); cv.addEventListener('pointerdown', move);
+    btn.off.addEventListener('click', () => { blend = false; draw(); });
+    btn.on.addEventListener('click', () => { blend = true; draw(); });
+    img.addEventListener('load', draw);
+    draw();
+  })();
 
   // fit the same-origin animation iframe to its content
   const wf = document.getElementById('warpframe');
