@@ -62,7 +62,7 @@
       --pos: 50%;
       position: relative;
       width: 100%;
-      aspect-ratio: 768 / 454;
+      aspect-ratio: 828 / 500;
       overflow: hidden;
       border-radius: 8px;
       background: #000;
@@ -190,48 +190,44 @@
   </header>
 
   <main>
-    <!-- 1. Reference vs Source (BEFORE) -->
+    <!-- 1. 2018 vs 2024, pixel misregistration -->
     <section class="card">
-      <h2>1 — Reference vs Source (before registration) <span class="badge-warn">misaligned</span></h2>
+      <h2>1 — Pixel misregistration <span class="badge-warn">misaligned</span></h2>
       <div class="compare" id="cmp-before" style="--pos:50%">
-        <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image (ArcGIS sample)" loading="eager" draggable="false">
-        <img class="layer-top" src="images/source_1920_cropped.jpg" alt="Source image (Google sample)" loading="eager" draggable="false">
+        <img class="layer-base" src="images/houses/slider_2024_before.jpg" alt="Houses, 2024" loading="eager" draggable="false">
+        <img class="layer-top" src="images/houses/slider_2018.jpg" alt="Houses, 2018" loading="eager" draggable="false">
         <div class="divider"></div>
         <div class="handle" aria-hidden="true">↔</div>
-        <span class="tag tag-left">Source (Google)</span>
-        <span class="tag tag-right">Reference (ArcGIS)</span>
+        <span class="tag tag-left">2018</span>
+        <span class="tag tag-right">2024</span>
         <span class="hint">drag to compare</span>
       </div>
       <div class="controls">
-        <input type="range" id="rng-before" min="0" max="100" value="50" step="0.1" aria-label="Slider position for reference versus source comparison">
+        <input type="range" id="rng-before" min="0" max="100" value="50" step="0.1" aria-label="Slider position for 2018 versus 2024 comparison, pixel misregistration">
         <output id="out-before" for="rng-before">50%</output>
         <button type="button" data-reset="cmp-before">Reset 50%</button>
       </div>
     </section>
 
-    <!-- 2. Reference vs Warped output (AFTER) -->
+    <!-- 2. 2018 vs 2024, after co-registration -->
     <section class="card">
-      <h2>2 — Reference vs Warped output (after registration) <span class="badge-ok">co-registered</span></h2>
+      <h2>2 — After co-registration <span class="badge-ok">co-registered</span></h2>
       <div class="compare" id="cmp-after" style="--pos:50%">
-        <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image (ArcGIS sample)" loading="lazy" draggable="false">
-        <img class="layer-top" src="images/warped_1920_cropped.jpg" alt="Warped output image projected from source" loading="lazy" draggable="false">
+        <img class="layer-base" src="images/houses/slider_2024_after.jpg" alt="Houses, 2024" loading="lazy" draggable="false">
+        <img class="layer-top" src="images/houses/slider_2018.jpg" alt="Houses, 2018" loading="lazy" draggable="false">
         <div class="divider"></div>
         <div class="handle" aria-hidden="true">↔</div>
-        <span class="tag tag-left">Warped output</span>
-        <span class="tag tag-right">Reference (ArcGIS)</span>
+        <span class="tag tag-left">2018</span>
+        <span class="tag tag-right">2024</span>
         <span class="hint">drag to compare</span>
       </div>
       <div class="controls">
-        <input type="range" id="rng-after" min="0" max="100" value="50" step="0.1" aria-label="Slider position for reference versus warped output comparison">
+        <input type="range" id="rng-after" min="0" max="100" value="50" step="0.1" aria-label="Slider position for 2018 versus 2024 comparison, after co-registration">
         <output id="out-after" for="rng-after">50%</output>
         <button type="button" data-reset="cmp-after">Reset 50%</button>
       </div>
     </section>
   </main>
-
-  <footer>
-    <p>Viewer uses centered crops (<code>images/reference_1920_cropped.jpg</code>, <code>images/source_1920_cropped.jpg</code>, <code>images/warped_1920_cropped.jpg</code>, 768×454, ~0.2&nbsp;MB each) derived from the full-resolution PNGs in <code>../images/</code> (<code>arcgis_sample.png</code>, <code>google_sample.png</code>, <code>output.png</code>, 5020×2968). Swap the <code>src</code> attributes to the <code>../images/*.png</code> files if you want full resolution.</p>
-  </footer>
 
   <script>
     function bindCompare(viewportId, rangeId, outId) {
