@@ -226,7 +226,9 @@
       <p class="tagline">A transformation function, the <b>homography</b>, is computed from the matched points.</p>
       <ul class="plain">
         <li>A homography is a 3×3 matrix that maps source positions onto the reference.</li>
-        <li>The image is split into small cells, and each cell gets its own homography. <b>Click a cell</b> to see its matrix:</li>
+        <li>The image is split into small cells, and each cell gets its own homography.</li>
+        <li>Each homography is estimated with the <b>Moving Direct Linear Transform (DLT)</b> method.</li>
+        <li><b>Click a cell</b> to see its matrix:</li>
       </ul>
       <div class="eq" id="heq" data-tex="H"></div>
       <div class="chips hdesc" id="hdesc" aria-live="polite"></div>
@@ -235,7 +237,6 @@
           <img src="images/pipeline/local_homographies.png" width="630" height="489" loading="lazy" alt="Aerial crop divided into a 9 by 7 grid of cells, each labelled H: one local homography per cell">
           <div class="hcells" id="hcells"></div>
         </div>
-        <figcaption>One homography per cell, covering the whole image. Click any cell.</figcaption>
       </figure>
     </section>
     </div>
@@ -311,7 +312,6 @@
       <div class="cols">
         <figure>
           <img src="images/pipeline/inverse_warping.gif" width="1060" height="645" loading="lazy" alt="Destination pixels are traced one by one through the inverse homography to the source image and carry its colour back">
-          <figcaption>Each output pixel is traced back through the homography to the source and brings its colour back.</figcaption>
         </figure>
       </div>
     </section>
@@ -407,12 +407,12 @@
     return name + '=' + (color ? `\\textcolor{${color}}{${m}}` : m);
   }
   const chip = (k, t, cls = '') => `<span class="chip ${cls}"><b>${k}</b> ${t}</span>`;
-  function describe(h) {
+  function describe(h, withScale = true) {
     // image axes: y points down, so a positive angle turns clockwise
     const rot = Math.atan2(h[3], h[0]) * 180 / Math.PI;
     const scale = Math.sqrt(Math.abs(h[0] * h[4] - h[1] * h[3]));
     return chip('Rotation', `${fx(Math.abs(rot), 2)}° ${rot >= 0 ? 'clockwise' : 'counter-clockwise'}`) +
-      chip('Scale', `×${fx(scale, 4)} (${scale >= 1 ? 'enlarged' : 'shrunk'} ${fx(Math.abs(scale - 1) * 100, 2)}%)`) +
+      (withScale ? chip('Scale', `×${fx(scale, 4)} (${scale >= 1 ? 'enlarged' : 'shrunk'} ${fx(Math.abs(scale - 1) * 100, 2)}%)`) : '') +
       chip('Shift', `${fx(Math.abs(h[2]), 1)} px ${h[2] >= 0 ? 'right' : 'left'}, ${fx(Math.abs(h[5]), 1)} px ${h[5] >= 0 ? 'down' : 'up'}`);
   }
   // 9×7 grid of buttons over the grid image; returns a function that marks the chosen cell
@@ -464,7 +464,7 @@
     const h = nrAfter ? medianH(c, r) : noisyH(c, r);
     nreq.dataset.tex = matTex((nrAfter ? '\\hat H' : 'H') + sub, h, n && (nrAfter ? '#2fa866' : '#e0514b')); tex(nreq);
     const status = n && nrAfter ? chip('Repaired', 'median of the 3×3 neighbourhood', 'good') : '';
-    nrdesc.innerHTML = chip('Cell', `row ${r + 1}, column ${c + 1}`) + status + describe(h);
+    nrdesc.innerHTML = chip('Cell', `row ${r + 1}, column ${c + 1}`) + status + describe(h, false);
     [...nrcells.children].forEach((b, i) => {
       const bad = (i % HC) + ',' + Math.floor(i / HC) in NOISE;
       b.classList.toggle('bad', bad && !nrAfter); b.classList.toggle('fixed', bad && nrAfter);
