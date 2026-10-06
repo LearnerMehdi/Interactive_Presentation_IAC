@@ -88,6 +88,12 @@
       /* show top image only LEFT of the divider */
       clip-path: inset(0 calc(100% - var(--pos)) 0 0);
     }
+    /* zoomed crop: scale both layers about the centre, and counter-scale the
+       clip edge so it still lands under the divider */
+    .compare.zoom img { transform: scale(var(--zoom)); }
+    .compare.zoom .layer-top {
+      clip-path: inset(0 calc(50% - (var(--pos) - 50%) / var(--zoom)) 0 0);
+    }
     .compare .divider {
       position: absolute;
       top: 0; bottom: 0;
@@ -219,7 +225,7 @@
     <!-- 1. Reference vs Source (BEFORE) -->
     <section class="card">
       <h2>1 — Reference vs Source (before registration) <span class="badge-warn">misaligned</span></h2>
-      <div class="compare" id="cmp-before" style="--pos:50%">
+      <div class="compare zoom" id="cmp-before" style="--pos:50%; --zoom:1.7">
         <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image" loading="eager" draggable="false">
         <img class="layer-top" src="images/source_1920_cropped.jpg" alt="Source image" loading="eager" draggable="false">
         <div class="divider"></div>
@@ -239,7 +245,7 @@
     <!-- 2. Reference vs Warped output (AFTER) -->
     <section class="card">
       <h2>2 — Reference vs Warped output (after registration) <span class="badge-ok">co-registered</span></h2>
-      <div class="compare" id="cmp-after" style="--pos:50%">
+      <div class="compare zoom" id="cmp-after" style="--pos:50%; --zoom:1.7">
         <img class="layer-base" src="images/reference_1920_cropped.jpg" alt="Reference image" loading="lazy" draggable="false">
         <img class="layer-top" src="images/warped_1920_cropped.jpg" alt="Warped output image projected from source" loading="lazy" draggable="false">
         <div class="divider"></div>
